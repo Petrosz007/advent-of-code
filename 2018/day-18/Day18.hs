@@ -1,20 +1,25 @@
-{-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE BangPatterns, DeriveGeneric #-}
 
 module Day18 where
 
-import qualified Data.Map.Strict as Map
+import Data.Function
+import Control.Parallel.Strategies
+import Control.DeepSeq.Generics (genericRnf)
+import GHC.Generics
 import Data.List
 import System.IO.Unsafe
 
 type Point = (Int,Int)
 
 data Acre = Open | Tree | Yard
-    deriving(Eq, Enum)
+    deriving(Eq, Enum, Generic)
 
 type Board = [(Point, Acre)]
 
 instance Show Acre where
     show x = [toChar x]
+
+instance NFData Acre
 
 toChar :: Acre -> Char
 toChar Open = '.'
@@ -32,8 +37,8 @@ main = do
     let board = parseStr $ fileStr
     -- putStrLn $ show $ (filter (/='\r') fileStr) == stringBoard board
     -- putStrLn . stringBoard . map (stepAcre board) $ board
-    -- print $ solve1 fileStr
-    print $ step 1000000000 board
+    print $ solve1 fileStr
+    -- print $ step 1000000000 board
 
 unsafeFileStr :: String
 unsafeFileStr = unsafePerformIO $ readFile "input.txt"
@@ -55,7 +60,7 @@ adjacentsPoints (x,y) = [(x-1,y-1), (x-1,y), (x-1,y+1),
                          (x+1,y-1), (x+1,y), (x+1,y+1)]
 
 getAdjacents :: Board -> (Point, Acre) -> [Acre]
-getAdjacents board (p, _) = concat . filter (not . null) . map fun $ adjacentsPoints p where
+getAdjacents board (p, _) = concat . filter (not . null) . parMap rdeepseq fun $ adjacentsPoints p where
     fun x = case lookup x board of
             Nothing -> []
             Just x -> [x]
@@ -93,7 +98,7 @@ stepAcre board x@(p, acre)
 
 step :: Int -> Board -> Board
 step n x = snd $ until (\(x,_)-> x <= 0) fun (n, x) where
-    fun (num, prev) = (num-1, map (stepAcre prev) prev)
+    fun (num, prev) = (num-1, parMap rdeepseq (stepAcre prev) prev)
 
 solve1 :: String -> Int
 solve1 s = trees * yards where
@@ -101,8 +106,8 @@ solve1 s = trees * yards where
     trees = length $ filter (\(_,x)-> x == Tree) board
     yards = length $ filter (\(_,x)-> x == Yard) board
 
-solve1 :: String -> Int
-solve1 s = trees * yards where
+solve2 :: String -> Int
+solve2 s = trees * yards where
     board = step 1000000000 $ parseStr s
     trees = length $ filter (\(_,x)-> x == Tree) board
     yards = length $ filter (\(_,x)-> x == Yard) board
