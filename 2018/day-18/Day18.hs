@@ -38,9 +38,10 @@ main = do
     -- putStrLn $ show $ (filter (/='\r') fileStr) == stringBoard board
     -- putStrLn . stringBoard . map (stepAcre board) $ board
     -- print $ solve1 fileStr
-    let finalBoard = step2 board
-    putStrLn $ stringBoard $ M.toList $ finalBoard
-    print $ solveBoard finalBoard
+    -- let finalBoard = step2 board
+    -- putStrLn $ stringBoard $ M.toList $ finalBoard
+    -- print $ solveBoard finalBoard
+    print . step3 . parseStr $ fileStr
 
 unsafeFileStr :: String
 unsafeFileStr = unsafePerformIO $ readFile "input.txt"
@@ -118,10 +119,14 @@ solveBoard board = trees * yards where
     yards = length . filter (== Yard) . M.elems $ board
 
 
--- print2 :: Show a => a -> a
--- print2 a = b where
---     !c = unsafePerformIO . print . show $ a
---     b = a 
+step3 :: Board -> ((Int, Int), Board)
+step3 x = fixPoint fun ((-1, 0), x) where
+    fun ((n, sum), prev) = (print2 $ (n+1, solveBoard prev), M.fromList . parMap rdeepseq (stepAcre prev) . M.toList $ prev)
+
+print2 :: Show a => a -> a
+print2 a = b where
+    !c = unsafePerformIO . print . show $ a
+    b = a 
 
 print3 :: [(Point, Acre)] -> [(Point, Acre)]
 print3 a = b where
