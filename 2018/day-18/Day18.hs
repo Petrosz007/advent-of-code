@@ -2,7 +2,7 @@
 
 module Day18 where
 
-import Data.Function
+import qualified Data.Map.Lazy as M
 import Control.Parallel.Strategies
 import Control.DeepSeq.Generics (genericRnf)
 import GHC.Generics
@@ -14,7 +14,7 @@ type Point = (Int,Int)
 data Acre = Open | Tree | Yard
     deriving(Eq, Enum, Generic)
 
-type Board = [(Point, Acre)]
+type Board = M.Map Point Acre
 
 instance Show Acre where
     show x = [toChar x]
@@ -37,20 +37,22 @@ main = do
     let board = parseStr $ fileStr
     -- putStrLn $ show $ (filter (/='\r') fileStr) == stringBoard board
     -- putStrLn . stringBoard . map (stepAcre board) $ board
-    print $ solve1 fileStr
-    -- print $ step 1000000000 board
+    -- print $ solve1 fileStr
+    let finalBoard = step2 board
+    putStrLn $ stringBoard $ M.toList $ finalBoard
+    print $ solveBoard finalBoard
 
 unsafeFileStr :: String
 unsafeFileStr = unsafePerformIO $ readFile "input.txt"
 
-parseStr :: String -> [(Point, Acre)]
-parseStr = snd . foldl fun (0,[]) . lines . filter (/='\r') where
+parseStr :: String -> Board
+parseStr = M.fromList . snd . foldl fun (0,[]) . lines . filter (/='\r') where
     fun :: (Int, [(Point, Acre)]) -> String -> (Int, [(Point, Acre)])
     fun (n,xs) s = (n+1, xs ++ (snd  (foldl (fun2 n) (0,[]) s)))
     fun2 :: Int -> (Int, [(Point, Acre)]) -> Char -> (Int, [(Point, Acre)])
     fun2 n (j,xs) acre = (j+1, xs ++ [((n,j), toAcre acre)])
 
-stringBoard :: Board -> String
+stringBoard :: [(Point, Acre)] -> String
 stringBoard xs = intercalate "\n" $ map (\x-> map (toChar . snd) $ filter (\((y,_),_)-> x == y) xs) [0..numRows]  where
     numRows = head . reverse . sort . map fst $ map fst xs
 
@@ -61,7 +63,7 @@ adjacentsPoints (x,y) = [(x-1,y-1), (x-1,y), (x-1,y+1),
 
 getAdjacents :: Board -> (Point, Acre) -> [Acre]
 getAdjacents board (p, _) = concat . filter (not . null) . parMap rdeepseq fun $ adjacentsPoints p where
-    fun x = case lookup x board of
+    fun x = case M.lookup x board of
             Nothing -> []
             Just x -> [x]
 
@@ -90,35 +92,44 @@ rule3 _ _ = False
 
 stepAcre :: Board -> (Point, Acre) -> (Point, Acre)
 stepAcre board x@(p, acre)
-    | rule1 board x = (p, Tree)
-    | rule2 board x = (p, Yard)
-    | rule3 board x = (p, Yard)
+    | rule1 board x                         = (p, Tree)
+    | rule2 board x                         = (p, Yard)
+    | rule3 board x                         = (p, Yard)
     | (not $ rule3 board x) && acre == Yard = (p, Open)
-    | otherwise     = (p, acre)
+    | otherwise                             = (p, acre)
 
 step :: Int -> Board -> Board
 step n x = snd $ until (\(x,_)-> x <= 0) fun (n, x) where
-    fun (num, prev) = (num-1, parMap rdeepseq (stepAcre prev) prev)
+    fun (num, prev) = (num-1, M.fromList . parMap rdeepseq (stepAcre prev) . M.toList $ prev)
+
+step2 :: Board -> Board
+step2 x = fixPoint fun x where
+    fun prev = M.fromList . print3 . parMap rdeepseq (stepAcre prev) . M.toList $ prev
 
 solve1 :: String -> Int
 solve1 s = trees * yards where
     board = step 10 $ parseStr s
-    trees = length $ filter (\(_,x)-> x == Tree) board
-    yards = length $ filter (\(_,x)-> x == Yard) board
+    trees = length . filter (== Tree) . M.elems $ board
+    yards = length . filter (== Yard) . M.elems $ board
 
-solve2 :: String -> Int
-solve2 s = trees * yards where
-    board = step 1000000000 $ parseStr s
-    trees = length $ filter (\(_,x)-> x == Tree) board
-    yards = length $ filter (\(_,x)-> x == Yard) board
+solveBoard :: Board -> Int
+solveBoard board = trees * yards where
+    trees = length . filter (== Tree) . M.elems $ board
+    yards = length . filter (== Yard) . M.elems $ board
 
 
-print2 :: Show a => a -> a
-print2 a = b where
-    !c = unsafePerformIO . print . show $ a
-    b = a 
+-- print2 :: Show a => a -> a
+-- print2 a = b where
+--     !c = unsafePerformIO . print . show $ a
+--     b = a 
 
-print3 :: Board -> Board
+print3 :: [(Point, Acre)] -> [(Point, Acre)]
 print3 a = b where
     !c = unsafePerformIO . putStrLn $ (stringBoard a ++ "\n\n")
     b = a 
+
+fixPoint :: Eq a => (a -> a) -> a -> a
+fixPoint f x = fun f x (f x) where
+  fun f x y
+    | x == y    = y
+    | otherwise = fun f y (f y)
