@@ -1,5 +1,5 @@
 pub fn calc(x: &u32) -> u32 {
-    let y = (*x as f64 / 3.0).floor() as u32;
+    let y = *x / 3;
 
     if y < 2 { 0 } 
     else     { y - 2 }
