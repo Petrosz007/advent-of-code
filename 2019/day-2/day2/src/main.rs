@@ -42,8 +42,8 @@ fn main() {
         .map(|s| s.parse::<usize>().unwrap())
         .collect();
 
-    std::mem::replace(&mut xs[1], 12);
-    std::mem::replace(&mut xs[2], 2);
+    xs[1] = 12;
+    xs[2] = 2;
     
     let ys = execute_program(&xs);
 
@@ -51,8 +51,8 @@ fn main() {
 
     'outer: for i in 0..100 {
         for j in 0..100 {
-            std::mem::replace(&mut xs[1], i);
-            std::mem::replace(&mut xs[2], j);
+            xs[1] = i;
+            xs[2] = j;
             if execute_program(&xs)[0] == 19690720 {
                 println!("Part 2: Noun = {}, Verb = {}, result = {}", i, j, 100 * i + j);
                 break 'outer;
