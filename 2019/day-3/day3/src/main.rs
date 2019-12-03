@@ -1,5 +1,6 @@
 use recap::Recap;
 use serde::Deserialize;
+use std::collections::HashSet;
 
 use std::cmp::{min, max};
 
@@ -17,7 +18,7 @@ enum Line {
 }
 
 fn add_line(prev: &(i32, i32), x: InputInstruction) -> (i32, i32) {
-    println!("{:?}, {:?}", prev, x);
+    // println!("{:?}, {:?}", prev, x);
     match x.dir {
         'U' => (prev.0, prev.1 + x.dist),
         'D' => (prev.0, prev.1 - x.dist),
@@ -38,7 +39,7 @@ fn draw_line(line: &str) -> Vec<(i32, i32)> {
 }
 
 fn to_line(x: &(i32, i32), y: &(i32, i32)) -> Line {
-    if y.0 == y.0 {
+    if x.0 == y.0 {
         Line::Vertical{
             x: x.0,
             y1: x.1,
@@ -57,106 +58,75 @@ fn manhattan(x: &i32, y: &i32) -> i32 {
     x.abs() + y.abs()
 }
 
-fn contains(x1: &i32, x2: &i32, y1: &i32, y2: &i32) -> bool {
-    let minx = min(x1, x2);
-    let maxx = max(x1, x2);
-    let miny = min(y1, y2);
-    let maxy = max(y1, y2);
-
-    (minx <= maxy && miny <= maxx) || 
-    (miny <= maxx && minx <= maxy)
-}
-
-fn contains2(x1: &i32, x2: &i32, y: &i32) -> bool {
-    let minx = min(x1, x2);
-    let maxx = max(x1, x2);
-
-    minx <= y && y <= maxx
-}
-
-fn lines_cross(x: &Line, y: &Line) -> bool {
-    match (x,y) {
-        (Line::Horizontal{y: i, x1: j1, x2: j2}, Line::Horizontal{y: a, x1: b1, x2: b2}) => {
-            i == a && contains(j1, j2, b1, b2)
-        },
-        (Line::Vertical{x: i, y1: j1, y2: j2}, Line::Vertical{x: a, y1: b1, y2: b2}) => {
-            i == a && contains(j1, j2, b1, b2)
-        },
-        (Line::Horizontal{y: i, x1: j1, x2: j2}, Line::Vertical{x: a, y1: b1, y2: b2}) => {
-            contains2(j1, j2, a) && contains2(b1, b2, i)
-        },
-        (Line::Vertical{x: i, y1: j1, y2: j2}, Line::Horizontal{y: a, x1: b1, x2: b2}) => {
-            contains2(j1, j2, a) && contains2(b1, b2, i)
-        },
-    }
-}
-
-fn from_origo(x: &Line) -> bool {
-    match x {
-        Line::Horizontal{y: 0, x1, x2} => *x1 == 0 || *x2 == 0,
-        Line::Vertical{x: 0, y1, y2} => *y1 == 0 || *y2 == 0,
-        _ => false,
-    }
-}
-
-fn closest_intersection(x: &Line, y: &Line) -> Option<i32> {
-    /*if from_origo(x) || from_origo(y) {
-        None
-    } else */if !lines_cross(x, y) { 
-        None 
-    } else {
-        match (x,y) {
-            (Line::Horizontal{y: i, x1: j1, x2: j2}, Line::Horizontal{y: a, x1: b1, x2: b2}) => {
-                Some(min(min(manhattan(&i, &b1), manhattan(&i, &j1)),
-                    min(manhattan(&i, &b2), manhattan(&i, &j2))))
-            },
-            (Line::Vertical{x: i, y1: j1, y2: j2}, Line::Vertical{x: a, y1: b1, y2: b2}) => {
-                Some(min(min(manhattan(&i, &b1), manhattan(&i, &j1)),
-                    min(manhattan(&i, &b2), manhattan(&i, &j2))))
-            },
-            (Line::Horizontal{y: i, x1: j1, x2: j2}, Line::Vertical{x: a, y1: b1, y2: b2}) => {
-                Some(manhattan(&i, &a))
-            },
-            (Line::Vertical{x: i, y1: j1, y2: j2}, Line::Horizontal{y: a, x1: b1, x2: b2}) => {
-                Some(manhattan(&i, &a))
-            },
-        }
-    }
-}
-
 fn main() {
-    let contents = std::fs::read_to_string("test.txt").expect("Error opening file!");
+    let contents = std::fs::read_to_string("input.txt").expect("Error opening file!");
     let mut lines = contents.lines();
     let line1_raw = lines.next().unwrap();
     let line2_raw = lines.next().unwrap();
 
     let line1_points = draw_line(line1_raw);
-    // let line1: Vec<Line> = line1_points.iter().zip(line1_points.iter().next()).map(|x| to_line(x)).collect();
-
     let line2_points = draw_line(line2_raw);
-    // let line2: Vec<Line> = line2_points.iter().zip(line2_points.iter().next()).map(|x| to_line(x)).collect();
 
-    // let closest_dist = line2.iter().map(|y| line1.iter().map(|x| closest_intersection(&x, &y)).filter_map(Option::Some).max()).max();
-    let mut line1: Vec<Line> = Vec::new();
-    for i in 0..(line1_points.len() - 2) {
-        line1.push(to_line(&line1_points[i], &line1_points[i+1]));
+    let mut line1_line = Vec::new();
+    for i in 0..(line1_points.len() - 1) {
+        line1_line.push(to_line(&line1_points[i], &line1_points[i+1]));
     }
-    
-    let mut line2: Vec<Line> = Vec::new();
-    for i in 0..(line2_points.len() - 2) {
-        line2.push(to_line(&line2_points[i], &line2_points[i+1]));
+
+    let mut line2_line = Vec::new();
+    for i in 0..(line2_points.len() - 1) {
+        line2_line.push(to_line(&line2_points[i], &line2_points[i+1]));
     }
-    
-    // println!("{:?}", line1);
-    // println!("{:?}", line2);
-    
-    for l1 in &line1 {
-        for l2 in &line2 {
-            if let Some(i) = closest_intersection(&l1, &l2) {
-                print!("{} ", i);
+
+    let mut line1 = HashSet::new();
+    for line in line1_line {
+        match line {
+            Line::Horizontal{y,x1,x2} => {
+                for x in min(x1, x2)..(max(x1,x2) + 1) {
+                    line1.insert((x,y));
+                }
+            },
+            Line::Vertical{x,y1,y2} => {
+                for y in min(y1,y2) .. (max(y1,y2) + 1) {
+                    line1.insert((x,y));
+                }
             }
         }
     }
 
-    // println!("{:?}", closest_dist);
+    line1.remove(&(0,0));
+
+    let mut found = false;
+    let mut closest = 0;
+    for line in line2_line {
+        match line {
+            Line::Horizontal{y,x1,x2} => {
+                for x in min(x1, x2)..(max(x1,x2) + 1) {
+                    if line1.contains(&(x,y)) {
+                        let dist = manhattan(&x, &y);
+                        if !found {
+                            closest = dist;
+                            found = true;
+                        } else if found && closest > dist {
+                            closest = dist;
+                        }
+                    }
+                }
+            },
+            Line::Vertical{x,y1,y2} => {
+                for y in min(y1,y2) .. (max(y1,y2) + 1) {
+                    if line1.contains(&(x,y)) {
+                        let dist = manhattan(&x, &y);
+                        if !found {
+                            closest = dist;
+                            found = true;
+                        } else if found && closest > dist {
+                            closest = dist;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    println!("Part 1: {}", closest);
 }
