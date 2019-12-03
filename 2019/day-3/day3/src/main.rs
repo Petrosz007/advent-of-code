@@ -1,6 +1,6 @@
 use recap::Recap;
 use serde::Deserialize;
-use std::collections::HashSet;
+use std::collections::HashMap;
 
 use std::cmp::{min, max};
 
@@ -77,31 +77,43 @@ fn main() {
         line2_line.push(to_line(&line2_points[i], &line2_points[i+1]));
     }
 
-    let mut line1 = HashSet::new();
+    let mut line1 = HashMap::new();
+    let mut steps = 0;
     for line in line1_line {
         match line {
             Line::Horizontal{y,x1,x2} => {
-                for x in min(x1, x2)..(max(x1,x2) + 1) {
-                    line1.insert((x,y));
+                let range: Vec<i32> = if x1 <= x2 { (x1..=x2).collect() } else { (x2..=x1).rev().collect() }; 
+                for x in range {
+                    if !line1.contains_key(&(x,y)) {
+                        line1.insert((x,y), steps);
+                    }
+                    steps += 1;
                 }
             },
             Line::Vertical{x,y1,y2} => {
-                for y in min(y1,y2) .. (max(y1,y2) + 1) {
-                    line1.insert((x,y));
+                let range: Vec<i32> = if y1 <= y2 { (y1..=y2).collect() } else { (y2..=y1).rev().collect() }; 
+                for y in range {
+                    if !line1.contains_key(&(x,y)) {
+                        line1.insert((x,y), steps);
+                    }
+                    steps += 1;
                 }
             }
         }
+        steps -= 1;
     }
+
+    // println!("{:?}", line1);
 
     line1.remove(&(0,0));
 
     let mut found = false;
     let mut closest = 0;
-    for line in line2_line {
-        match line {
+    for line in &line2_line {
+        match *line {
             Line::Horizontal{y,x1,x2} => {
-                for x in min(x1, x2)..(max(x1,x2) + 1) {
-                    if line1.contains(&(x,y)) {
+                for x in min(x1, x2)..=max(x1,x2) {
+                    if line1.contains_key(&(x,y)) {
                         let dist = manhattan(&x, &y);
                         if !found {
                             closest = dist;
@@ -113,8 +125,8 @@ fn main() {
                 }
             },
             Line::Vertical{x,y1,y2} => {
-                for y in min(y1,y2) .. (max(y1,y2) + 1) {
-                    if line1.contains(&(x,y)) {
+                for y in min(y1,y2) ..=max(y1,y2) {
+                    if line1.contains_key(&(x,y)) {
                         let dist = manhattan(&x, &y);
                         if !found {
                             closest = dist;
@@ -129,4 +141,45 @@ fn main() {
     }
 
     println!("Part 1: {}", closest);
+
+    let mut found = false;
+    let mut closest = 0;
+    let mut steps = 0;
+    for line in line2_line {
+        match line {
+            Line::Horizontal{y,x1,x2} => {
+                let range: Vec<i32> = if x1 <= x2 { (x1..=x2).collect() } else { (x2..=x1).rev().collect() }; 
+                for x in range {
+                    if let Some(line1_dist) = line1.get(&(x,y)) {
+                        let dist = *line1_dist + steps;
+                        if !found {
+                            closest = dist;
+                            found = true;
+                        } else if found && closest > dist {
+                            closest = dist;
+                        }
+                    }
+                    steps += 1;
+                }
+            },
+            Line::Vertical{x,y1,y2} => {
+                let range: Vec<i32> = if y1 <= y2 { (y1..=y2).collect() } else { (y2..=y1).rev().collect() }; 
+                for y in range {
+                    if let Some(line1_dist) = line1.get(&(x,y)) {
+                        let dist = *line1_dist + steps;
+                        if !found {
+                            closest = dist;
+                            found = true;
+                        } else if found && closest > dist {
+                            closest = dist;
+                        }
+                    }
+                    steps += 1;
+                }
+            }
+        }
+        steps -= 1;
+    }
+
+    println!("Part 2: {}", closest);
 }
