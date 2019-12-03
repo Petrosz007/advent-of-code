@@ -2,11 +2,11 @@ use recap::Recap;
 use serde::Deserialize;
 use std::collections::HashMap;
 
-#[derive(Debug, Deserialize, Recap)]
+#[derive(Debug, Deserialize, Recap, Clone)]
 #[recap(regex = r#"(?P<dir>[A-Z])(?P<dist>\d+)"#)]
 struct InputInstruction {
     dir: char,
-    dist: i32,
+    dist: usize,
 }
 
 fn move_once(dir: &char, prev: &(i32, i32)) -> (i32, i32) {
@@ -16,28 +16,24 @@ fn move_once(dir: &char, prev: &(i32, i32)) -> (i32, i32) {
         'D' => (x, y - 1),
         'R' => (x + 1, y),
         'L' => (x - 1, y),
-        _ => (200000, 200000),
+        _ => (0, 0),
     }
 }
 
 fn parse_line(line: &str) -> HashMap<(i32, i32), i32> {
-    let instructions = line.split(',').map(|s| s.parse::<InputInstruction>().unwrap());
-    let mut map  = HashMap::new();
-    let mut steps = 1;
-    let mut prev = (0,0);
-    for instruction in instructions {
-        for _ in 0..instruction.dist {
-            prev = move_once(&instruction.dir, &prev);
-            map.entry(prev).or_insert(steps);
-            steps += 1;
-        }
-    }
+    let instructions: Vec<_> = line.split(',').map(|s| s.parse::<InputInstruction>().unwrap()).collect();
 
-    map
-}
-
-fn manhattan(x: &(i32, i32)) -> i32 {
-    x.0.abs() + x.1.abs()
+    instructions.iter()
+        .flat_map(|instr| std::iter::repeat(instr).take((*instr).dist))
+        .scan(((0,0), 0), |(prev, step), InputInstruction{dir, ..}| {
+            *prev = move_once(&dir, &prev);
+            *step += 1;
+            Some((*prev, *step))
+        })
+        .fold(HashMap::new(), |mut map, (pos, step)| {
+            map.entry(pos).or_insert(step);
+            map
+        })
 }
 
 fn main() {
@@ -51,7 +47,7 @@ fn main() {
         .collect();
 
     let closest1 = intersections.iter()
-        .map(|(pos, _)| manhattan(pos))
+        .map(|((x,y), _)| x.abs() + y.abs())
         .min()
         .unwrap();
 
