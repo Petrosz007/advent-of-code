@@ -20,6 +20,22 @@ fn move_once(dir: &char, prev: &(i32, i32)) -> (i32, i32) {
     }
 }
 
+fn parse_line(line: &str) -> HashMap<(i32, i32), i32> {
+    let instructions = line.split(',').map(|s| s.parse::<InputInstruction>().unwrap());
+    let mut map  = HashMap::new();
+    let mut steps = 1;
+    let mut prev = (0,0);
+    for instruction in instructions {
+        for _ in 0..instruction.dist {
+            prev = move_once(&instruction.dir, &prev);
+            map.entry(prev).or_insert(steps);
+            steps += 1;
+        }
+    }
+
+    map
+}
+
 fn manhattan(x: &(i32, i32)) -> i32 {
     x.0.abs() + x.1.abs()
 }
@@ -27,63 +43,23 @@ fn manhattan(x: &(i32, i32)) -> i32 {
 fn main() {
     let contents = std::fs::read_to_string("input.txt").expect("Error opening file!");
     let mut lines = contents.lines();
-    let line1_raw: Vec<InputInstruction> = lines.next().unwrap().split(',').map(|s| s.parse().unwrap()).collect();
-    let line2_raw: Vec<InputInstruction> = lines.next().unwrap().split(',').map(|s| s.parse().unwrap()).collect();
+    let line1 = parse_line(lines.next().unwrap());
+    let line2 = parse_line(lines.next().unwrap());
 
-    let mut line1 = HashMap::new();
-    let mut steps = 1;
-    let mut prev = (0,0);
-    for line in line1_raw {
-        for _ in 0..line.dist {
-            prev = move_once(&line.dir, &prev);
-            if !line1.contains_key(&prev) {
-                line1.insert(prev, steps);
-            }
-            steps += 1;
-        }
-    }
+    let intersections: Vec<_> = line2.iter()
+        .filter(|(pos, _)| line1.contains_key(pos))
+        .collect();
 
-    // Part 1
-    let mut found = false;
-    let mut closest = 0;
-    let mut prev = (0,0);
-    for line in &line2_raw {
-        for _ in 0..line.dist {
-            prev = move_once(&line.dir, &prev);
-            if line1.contains_key(&prev) {
-                let dist = manhattan(&prev);
-                if !found {
-                    closest = dist;
-                    found = true;
-                } else if found && closest > dist {
-                    closest = dist;
-                }
-            }
-        }
-    }
+    let closest1 = intersections.iter()
+        .map(|(pos, _)| manhattan(pos))
+        .min()
+        .unwrap();
 
-    println!("Part 1: {}", closest);
+    let closest2 = intersections.iter()
+        .map(|(pos, step)| *step + line1.get(pos).unwrap())
+        .min()
+        .unwrap();
 
-    // Part 2
-    let mut found = false;
-    let mut closest = 0;
-    let mut steps = 1;
-    let mut prev = (0,0);
-    for line in line2_raw {
-        for _ in 0..line.dist {
-            prev = move_once(&line.dir, &prev);
-            if let Some(line1_dist) = line1.get(&prev) {
-                let dist = *line1_dist + steps;
-                if !found {
-                    closest = dist;
-                    found = true;
-                } else if found && closest > dist {
-                    closest = dist;
-                }
-            }
-            steps += 1;
-        }
-    }
-
-    println!("Part 2: {}", closest);
+    println!("Part 1: {}", closest1);
+    println!("Part 2: {}", closest2);
 }
