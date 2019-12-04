@@ -2,9 +2,11 @@ use recap::Recap;
 use serde::Deserialize;
 use std::collections::HashMap;
 
+mod svg;
+
 #[derive(Debug, Deserialize, Recap, Clone)]
 #[recap(regex = r#"(?P<dir>[A-Z])(?P<dist>\d+)"#)]
-struct InputInstruction {
+pub struct InputInstruction {
     dir: char,
     dist: usize,
 }
@@ -58,4 +60,8 @@ fn main() {
 
     println!("Part 1: {}", closest1);
     println!("Part 2: {}", closest2);
+
+    let svg = format!("<html><body><svg width=\"2500\" height=\"2500\">\n{}\n{}\n{}\n</svg></body></html>", svg::to_svg_line(&line1, "red"), svg::to_svg_line(&line2, "blue"), 
+        intersections.iter().map(|x| svg::to_svg_circle(x, "black")).collect::<Vec<String>>().join("\n"));
+    std::fs::write("image.html", svg).expect("Error writing svg!");
 }
