@@ -1,38 +1,46 @@
 pub fn execute_at(xs: &Vec<i32>, ind: usize, input: &i32) -> Result<(Vec<i32>, usize), Vec<i32>> {
     let mut ys = xs.clone();
-    let op = ((xs[ind] / 10) % 10) * 10 + xs[ind] % 10;
-    let p1mode = ((xs[ind] / 100) % 10) == 0;
-    let p2mode = ((xs[ind] / 1000) % 10) == 0;
-    let p3mode = ((xs[ind] / 10000) % 10) == 0;
-    let modes = vec![false, p1mode, p2mode, p3mode];
 
+    let op = xs[ind] % 100;
+    let pmode = |i: usize| ((xs[ind] / (10i32.pow(i as u32 + 1))) % 10) == 0;
     let fetch = |i: usize| {
-        if !modes[i] {
-            xs[ind+i]
-        } else {
+        if pmode(i) {
             xs[xs[ind+i] as usize]
+        } else {
+            xs[ind+i]
         }
     };
+    let mut store = |i: usize, x: i32| ys[xs[ind+i] as usize] = x;
 
     match op {
+        // Exit
         99 => Err(ys),
+
+        // Add
         1 => {
-            ys[xs[ind+3] as usize] = fetch(1) + fetch(2);
+            store(3, fetch(1) + fetch(2));
             Ok((ys, ind+4))
         },
+
+        // Multiply
         2 => {
-            ys[xs[ind+3] as usize] = fetch(1) * fetch(2);
+            store(3, fetch(1) * fetch(2));
             Ok((ys, ind+4)) 
         },
+
+        // Read input
         3 => {
-            ys[xs[ind+1] as usize] = *input;
+            store(1, *input);
             Ok((ys, ind+2))
         },
+
+        // Output
         4 => {
-            //println!("Output: {}", fetch(1));
             print_output(&fetch(1));
             Ok((ys, ind+2))
         },
+
+        // Non-zero
         5 => {
             if fetch(1) != 0 {
                 Ok((ys, fetch(2) as usize))
@@ -40,6 +48,8 @@ pub fn execute_at(xs: &Vec<i32>, ind: usize, input: &i32) -> Result<(Vec<i32>, u
                 Ok((ys, ind+3))
             }
         },
+
+        // Is zero
         6 => {
             if fetch(1) == 0 {
                 Ok((ys, fetch(2) as usize))
@@ -47,20 +57,26 @@ pub fn execute_at(xs: &Vec<i32>, ind: usize, input: &i32) -> Result<(Vec<i32>, u
                 Ok((ys, ind+3))
             }
         },
+
+        // Less than
         7 => {
-            ys[xs[ind+3] as usize] = {
+            store(3, {
                 if fetch(1) < fetch(2) { 1 }
                 else { 0 }
-            };
+            });
             Ok((ys, ind+4)) 
         },
+
+        // Equals
         8 => {
-            ys[xs[ind+3] as usize] = {
+            store(3, {
                 if fetch(1) == fetch(2) { 1 }
                 else { 0 }
-            };
+            });
             Ok((ys, ind+4)) 
         },
+
+        // Error
         x => {
             println!("Invalid operation {} at {}!", x, ind);
             Err(ys)
@@ -69,13 +85,13 @@ pub fn execute_at(xs: &Vec<i32>, ind: usize, input: &i32) -> Result<(Vec<i32>, u
 }
 
 pub fn execute_program(xs: &Vec<i32>, input: &i32) -> Vec<i32> {
-    let mut ind = 0usize;
+    let mut ip = 0usize;
     let mut ys = xs.clone();
     loop {
-        match execute_at(&ys, ind, input) {
-            Ok((x, ip)) => {
+        match execute_at(&ys, ip, input) {
+            Ok((x, new_ip)) => {
                 ys = x;
-                ind = ip;
+                ip = new_ip;
             },
             Err(x) => {
                 return x; 
