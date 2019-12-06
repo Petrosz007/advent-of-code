@@ -1,0 +1,13 @@
+var inval var2
+
+label _main:
+    inp inval
+    add inval $10 var2
+    mul var2 $2 var2
+    equ $20 var2 _is_20
+    out $0
+    die $0
+
+label _is_20:
+    out $1
+    die $0

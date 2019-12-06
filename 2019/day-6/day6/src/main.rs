@@ -6,8 +6,8 @@ fn main() {
         .expect("Error opening file!");
 
     let mut graph:   HashMap<&str, Vec<&str>> = HashMap::new();
-    let mut dist:    HashMap<&str, i32>  = HashMap::new();
-    let mut visited:    HashMap<&str, bool>  = HashMap::new();
+    let mut dist:    HashMap<&str, i32>       = HashMap::new();
+    let mut visited: HashMap<&str, bool>      = HashMap::new();
     for edge in contents.lines() {
         let uv: Vec<&str> = edge.split(")").collect();
         graph.entry(uv[0]).or_insert(Vec::new()).push(uv[1]);
