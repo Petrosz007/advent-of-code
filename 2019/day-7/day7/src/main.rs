@@ -32,6 +32,7 @@ pub fn execute_at(xs: &Vec<i32>, ind: usize, input: Vec<i32>) -> Result<(Vec<i32
 
         // Read input
         3 => {
+            // Waits until it gets a valid input
             if input.len() == 0 {
                 Ok((ys, ind, input, None))
             } else {
@@ -111,55 +112,13 @@ pub fn execute_program(xs: &Vec<i32>, inp: &Vec<i32>) -> Vec<i32> {
     }
 }
 
-pub fn execute_feedback_loop(xs: &Vec<i32>, inp: &Vec<i32>) -> i32 {
-    let mut ip: Vec<usize> = vec![0,0,0,0,0];
-    let mut ys = vec![xs.clone(), xs.clone(), xs.clone(), xs.clone(), xs.clone()];
-    let mut input = vec![vec![inp[0], 0], vec![inp[1]], vec![inp[2]], vec![inp[3]], vec![inp[4]]];
-    let mut output = vec![Vec::new(), Vec::new(), Vec::new(), Vec::new(), Vec::new()];
+pub fn execute_amplifiers(xs: &Vec<i32>, inp: &Vec<i32>) -> i32 {
+    let mut ip: Vec<usize> = vec![0              , 0           , 0           , 0           , 0           ];
+    let mut ys             = vec![xs.clone()     , xs.clone()  , xs.clone()  , xs.clone()  , xs.clone()  ];
+    let mut input          = vec![vec![inp[0], 0], vec![inp[1]], vec![inp[2]], vec![inp[3]], vec![inp[4]]];
+    let mut output         = vec![Vec::new()     , Vec::new()  , Vec::new()  , Vec::new()  , Vec::new()  ];
 
     loop {
-        // println!("Out: {:?}", output);
-        for i in 0..=4 {
-            match execute_at(&ys[i], ip[i], input[i].clone()) {
-                Ok((x, new_ip, new_input, plus_output)) => {
-                    ys[i] = x;
-                    ip[i] = new_ip;
-                    input[i] = new_input;
-                    if let Some(out) = plus_output {
-                        
-                        output[i].push(out);
-                        input[(i+1) % 5].push(out);
-                    }
-                },
-                Err(_) if i == 4 => {
-                    return *output[4].last().unwrap();
-                },
-                Err(_) => {
-                    ;
-                },
-            }
-        }
-    }
-}
-
-// pub fn execute_thrusters(xs: &Vec<i32>, input: &Vec<i32>) -> i32  {
-//     let mut last_output = 0;
-//     for i in input {
-//         println!("{} {:?}", i, input);
-//         last_output = *execute_program(&xs, &vec![*i, last_output]).last().unwrap();
-//     }
-
-//     last_output
-// }
-
-pub fn execute_thrusters(xs: &Vec<i32>, inp: &Vec<i32>) -> i32  {
-    let mut ip: Vec<usize> = vec![0,0,0,0,0];
-    let mut ys = vec![xs.clone(), xs.clone(), xs.clone(), xs.clone(), xs.clone()];
-    let mut input = vec![vec![inp[0], 0], vec![inp[1]], vec![inp[2]], vec![inp[3]], vec![inp[4]]];
-    let mut output = vec![Vec::new(), Vec::new(), Vec::new(), Vec::new(), Vec::new()];
-
-    loop {
-        // println!("Out: {:?}", output);
         for i in 0..=4 {
             match execute_at(&ys[i], ip[i], input[i].clone()) {
                 Ok((x, new_ip, new_input, plus_output)) => {
@@ -186,20 +145,7 @@ pub fn optimise_thrusters(xs: &Vec<i32>, inputs: &Vec<i32>) -> i32 {
     let mut permutations = inputs.clone();
     let mut outputs = Vec::new();
     loop {
-        outputs.push(execute_thrusters(&xs, &permutations));
-        if !permutations.next_permutation() {
-            break;
-        }
-    }
-
-    *outputs.iter().max().unwrap()
-}
-
-pub fn optimise_thrusters_feedback_loop(xs: &Vec<i32>, inputs: &Vec<i32>) -> i32 {
-    let mut permutations = inputs.clone();
-    let mut outputs = Vec::new();
-    loop {
-        outputs.push(execute_feedback_loop(&xs, &permutations));
+        outputs.push(execute_amplifiers(&xs, &permutations));
         if !permutations.next_permutation() {
             break;
         }
@@ -220,5 +166,5 @@ fn main() {
         .collect();
 
     println!("Part 1: {}", optimise_thrusters(&xs, &vec![0,1,2,3,4]));
-    println!("Part 2: {}", optimise_thrusters_feedback_loop(&xs, &vec![5,6,7,8,9]));
+    println!("Part 2: {}", optimise_thrusters(&xs, &vec![5,6,7,8,9]));
 }
