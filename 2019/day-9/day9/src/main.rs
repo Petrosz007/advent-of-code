@@ -27,10 +27,10 @@ impl IntCodeCPUState {
 pub fn execute_at(state: &IntCodeCPUState) -> IntCodeCPUState {
     let mut new_state = state.clone();
 
-    let op = state.memory[&state.ip] % 100;
-    let pmode = |i: usize| ((state.memory[&state.ip] / (10i128.pow(i as u32 + 1))) % 10);
+    let op     = state.memory[&state.ip] % 100;
+    let pmode  = |i: usize| ((state.memory[&state.ip] / (10i128.pow(i as u32 + 1))) % 10);
     let get_at = |i: usize| -> i128 { *state.memory.get(&i).unwrap_or(&0) };
-    let fetch = |i: usize| -> i128 {
+    let fetch  = |i: usize| -> i128 {
         match pmode(i) {
             0 => get_at(get_at(state.ip+i) as usize),
             1 => get_at(state.ip+i),
