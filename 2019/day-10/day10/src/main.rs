@@ -25,8 +25,7 @@ impl Eq for dist {}
 
 impl Hash for dist {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        self.u.hash(state);
-        self.v.hash(state);
+        (((self.u as f64 / self.v as f64) * 100000.0) as i64).hash(state);
     }
 }
 
