@@ -2,7 +2,7 @@ mod icpu;
 use icpu::{execute_at, IntCodeCPUState};
 use std::collections::HashMap;
 
-enum Color { Black, White }
+pub enum Color { Black, White }
 pub enum Dir { Up, Down, Left, Right }
 
 impl Color {
@@ -32,7 +32,7 @@ pub fn step(pos: &(i32, i32), dir: &Dir, next_dir: &i128) -> ((i32, i32), Dir) {
     }
 }
 
-pub fn execute_program(xs: &Vec<i128>) -> usize {
+pub fn execute_program(xs: &Vec<i128>, starting_color: Color) -> HashMap<(i32,i32), Color> {
     let mut state = IntCodeCPUState::new(xs, &Vec::<i128>::new());
     let mut output_num = 0;
 
@@ -40,7 +40,7 @@ pub fn execute_program(xs: &Vec<i128>) -> usize {
     let mut pos = (0,0);
     let mut dir = Dir::Up;
     tiles.insert(pos, Color::Black);
-    state.input.push(tiles.entry(pos).or_insert(Color::Black).to_instr());
+    state.input.push(starting_color.to_instr());
 
     loop {
         state = execute_at(&state);
@@ -63,7 +63,7 @@ pub fn execute_program(xs: &Vec<i128>) -> usize {
         }
 
         if state.halted {
-            return tiles.len();
+            return tiles;
         }
     }
 }
@@ -79,5 +79,27 @@ fn main() {
         .map(|s| s.parse::<i128>().unwrap())
         .collect();
 
-    println!("Part 1: {}", execute_program(&xs));
+    // Part 1
+    println!("Part 1: {}", execute_program(&xs, Color::Black).len());
+
+    // Part 2
+    let tiles = execute_program(&xs, Color::White);
+    let x_offset = tiles.keys().min_by_key(|(x, _)| x).unwrap().0.abs();
+    let y_offset = tiles.keys().min_by_key(|(_, x)| x).unwrap().1.abs();
+    let width = tiles.keys().max_by_key(|(x, _)| x).unwrap().0 + x_offset;
+    let height = tiles.keys().max_by_key(|(_, x)| x).unwrap().1 + y_offset;
+
+    for j in (0..=height).rev() {
+        for i in 0..=width {
+            if let Some(x) = tiles.get(&(i - x_offset, j - y_offset)) {
+                match x {
+                    Color::White => print!("{}", '\u{2588}'),
+                    Color::Black => print!(" "),
+                }
+            } else {
+                print!(" ");
+            }
+        }
+        println!("");
+    }
 }
