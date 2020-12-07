@@ -5,19 +5,20 @@ using System.Linq;
 using System;
 using System.IO;
 
-using Graph = System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<(string, int)>>;
+using Node = System.Collections.Generic.List<(string Name, int Count)>;
+using Graph = System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<(string Name, int Count)>>;
 
 namespace Day7cs
 {
     public class Program
     {   
-        public static List<(string, int)> ParseContainedBags(string line) =>
+        public static Node ParseContainedBags(string line) =>
             new Regex(@"(?<count>\d+) (?<type>\S+ \S+) bag")
                 .Matches(line)
                 .Select(match => (match.Groups["type"].Value, int.Parse(match.Groups["count"].Value)))
                 .ToList();
 
-        public static (string, List<(string, int)>) ParseLine(string line)
+        public static (string Key, Node Value) ParseLine(string line)
         {
             var matchNoBags = new Regex(@"^(?<container>\S+ \S+) bags contain no").Match(line);
             if(matchNoBags.Success)
@@ -31,25 +32,17 @@ namespace Day7cs
             return (container, containedBags);
         }
 
-        public static Graph ParseToGraph(string[] lines)
-        {
-            var graph = new Graph();
-            var parsedLines = lines.Select(ParseLine);
-            foreach(var line in parsedLines)
-            {
-                var container = line.Item1;
-                var contained = line.Item2;
-                graph.Add(container, contained);
-            }
+        public static Graph ParseToGraph(string[] lines) =>
+            lines
+                .Select(ParseLine)
+                .ToDictionary(x => x.Key, x => x.Value);
 
-            return graph;
-        }
 
         public static bool BFSFind(string node, Graph graph, string target) =>
             node.Equals(target)
                 ? true
                 : graph[node]
-                    .Select(x => x.Item1)
+                    .Select(x => x.Name)
                     .Any(x => BFSFind(x, graph, target));
 
         public static int Solve1(Graph graph, string target = "shiny gold") =>
@@ -60,7 +53,7 @@ namespace Day7cs
         public static int BFSSum(string node, Graph graph) =>
             graph[node].Count == 0
                 ? 0
-                : graph[node].Sum(x => (1 + BFSSum(x.Item1, graph)) * x.Item2);
+                : graph[node].Sum(x => (1 + BFSSum(x.Name, graph)) * x.Count);
         
         public static int Solve2(Graph graph, string target = "shiny gold") =>
             BFSSum(target, graph);
