@@ -20,9 +20,9 @@ namespace Day7cs.Tests
         {
             var result = Program.ParseLine(line);
 
-            Assert.Equal(container, result.Item1);
-            Assert.True(contained.SequenceEqual(result.Item2.Select(x => x.Item1)));
-            Assert.True(containedCount.SequenceEqual(result.Item2.Select(x => x.Item2)));
+            Assert.True(Enumerable.Repeat(container, result.Count()).SequenceEqual(result.Select(x => x.Parent)));
+            Assert.True(contained.SequenceEqual(result.Select(x => x.Child)));
+            Assert.True(containedCount.SequenceEqual(result.Select(x => x.Count)));
         }
     }
 }

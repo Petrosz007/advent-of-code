@@ -5,58 +5,58 @@ using System.Linq;
 using System;
 using System.IO;
 
-using Node = System.Collections.Generic.List<(string Name, int Count)>;
-using Graph = System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<(string Name, int Count)>>;
+using Edges = System.Collections.Generic.List<(string Parent, string Child, int Count)>;
+using Tree = System.Linq.ILookup<string, (string Name, int Count)>;
 
 namespace Day7cs
 {
     public class Program
     {   
-        public static Node ParseContainedBags(string line) =>
+        public static Edges ParseContainedBags(string parent, string line) =>
             new Regex(@"(?<count>\d+) (?<type>\S+ \S+) bag")
                 .Matches(line)
-                .Select(match => (match.Groups["type"].Value, int.Parse(match.Groups["count"].Value)))
+                .Select(match => (parent, match.Groups["type"].Value, int.Parse(match.Groups["count"].Value)))
                 .ToList();
 
-        public static (string Key, Node Value) ParseLine(string line)
+        public static Edges ParseLine(string line)
         {
             var matchNoBags = new Regex(@"^(?<container>\S+ \S+) bags contain no").Match(line);
             if(matchNoBags.Success)
-            {
-                return (matchNoBags.Groups["container"].Value, new ());
-            }
+                return new ();
 
             var matchBags = new Regex(@"^(?<container>\S+ \S+) bags contain (?<bags>(\d+ \S+ \S+ bag(s)?(, )?)+).$").Match(line);
             var container = matchBags.Groups["container"].Value;
-            var containedBags = ParseContainedBags(matchBags.Groups["bags"].Value);
-            return (container, containedBags);
+            var containedBags = ParseContainedBags(container, matchBags.Groups["bags"].Value);
+
+            return containedBags;
         }
 
-        public static Graph ParseToGraph(string[] lines) =>
+        public static Tree ParseToTree(string[] lines) =>
             lines
-                .Select(ParseLine)
-                .ToDictionary(x => x.Key, x => x.Value);
+                .SelectMany(ParseLine)
+                .ToLookup(x => x.Parent, x => (x.Child, x.Count));
 
 
-        public static bool BFSFind(string node, Graph graph, string target) =>
+        public static bool BFSFind(string node, Tree tree, string target) =>
             node.Equals(target)
                 ? true
-                : graph[node]
+                : tree[node]
                     .Select(x => x.Name)
-                    .Any(x => BFSFind(x, graph, target));
+                    .Any(x => BFSFind(x, tree, target));
 
-        public static int Solve1(Graph graph, string target = "shiny gold") =>
-            graph.Keys
-                .Where(node => BFSFind(node, graph, target))
+        public static int Solve1(Tree tree, string target = "shiny gold") =>
+            tree
+                .Select(edge => edge.Key)
+                .Where(node => BFSFind(node, tree, target))
                 .Count() - 1;
 
-        public static int BFSSum(string node, Graph graph) =>
-            graph[node].Count == 0
+        public static int BFSSum(string node, Tree tree) =>
+            tree[node].Count() == 0
                 ? 0
-                : graph[node].Sum(x => (1 + BFSSum(x.Name, graph)) * x.Count);
+                : tree[node].Sum(x => (1 + BFSSum(x.Name, tree)) * x.Count);
         
-        public static int Solve2(Graph graph, string target = "shiny gold") =>
-            BFSSum(target, graph);
+        public static int Solve2(Tree tree, string target = "shiny gold") =>
+            BFSSum(target, tree);
 
         public static void Main(string[] args)
         {
@@ -64,10 +64,10 @@ namespace Day7cs
 
             var stopwatch = Stopwatch.StartNew();
 
-            var graph = ParseToGraph(input);
+            var tree = ParseToTree(input);
 
-            var part1 = Solve1(graph);
-            var part2 = Solve2(graph);
+            var part1 = Solve1(tree);
+            var part2 = Solve2(tree);
 
             stopwatch.Stop();
 
