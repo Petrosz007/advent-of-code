@@ -14,6 +14,7 @@ int Solve1(string[][] input) =>
     input
         .Select(group => CountChars(group, Enumerable.Union))
         .Sum();
+        
 int Solve2(string[][] input) =>
     input
         .Select(group => CountChars(group, Enumerable.Intersect))
