@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monorepo2020", "Monorepo2020\Monorepo2020.csproj", "{1410D7C0-EFDE-4E83-BBAA-2092D156BCFF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monorepo2020.Tests", "Monorepo2020.Tests\Monorepo2020.Tests.csproj", "{5D2D28F8-9415-4C18-A2DC-DA64B934270A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1410D7C0-EFDE-4E83-BBAA-2092D156BCFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1410D7C0-EFDE-4E83-BBAA-2092D156BCFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1410D7C0-EFDE-4E83-BBAA-2092D156BCFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1410D7C0-EFDE-4E83-BBAA-2092D156BCFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D2D28F8-9415-4C18-A2DC-DA64B934270A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D2D28F8-9415-4C18-A2DC-DA64B934270A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D2D28F8-9415-4C18-A2DC-DA64B934270A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D2D28F8-9415-4C18-A2DC-DA64B934270A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
