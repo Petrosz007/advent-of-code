@@ -1,2 +1,2 @@
 run:
-    ./gradlew run
+    kotlinc -script Main.kts
