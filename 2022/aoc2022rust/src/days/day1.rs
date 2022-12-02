@@ -10,6 +10,7 @@ fn part2(calories: &Calories) -> i64 {
     calories[0] + calories[1] + calories[2]
 }
 
+pub type ParsedInput = Calories;
 impl Day<1, Calories> for Days {
     fn parse_lines(&self, lines: &Vec<String>) -> Calories {
         let mut calories = Vec::new();
@@ -46,7 +47,7 @@ mod test {
 
     #[test]
     fn test_solution() {
-        let solution = Days::new().solve_days_input();
+        let solution = Day::<1, ParsedInput>::solve_days_input(&Days::new());
 
         assert_eq!(
             solution,

@@ -1,6 +1,7 @@
 use std::{fmt::Display, fs::read_to_string};
 
 pub mod day1;
+pub mod day2;
 
 #[derive(PartialEq, Debug)]
 pub struct Solution {
@@ -17,7 +18,7 @@ impl Display for Solution {
         };
 
         if let Some(part2) = self.part2 {
-            write!(f, "\nPart1: {part2}")?;
+            write!(f, "\nPart2: {part2}")?;
         } else {
             write!(f, "\nPart2: TODO")?;
         };
@@ -47,6 +48,14 @@ pub trait Day<const DAY: u8, ParsedInput> {
 
     fn solve_days_input(&self) -> Solution {
         let lines = read_lines(&self.input_file_name());
+        let parsed_input = self.parse_lines(&lines);
+        let solution = self.solve(parsed_input);
+
+        solution
+    }
+
+    fn solve_text_input(&self, input: &str) -> Solution {
+        let lines = input.lines().map(|x| x.to_string()).collect();
         let parsed_input = self.parse_lines(&lines);
         let solution = self.solve(parsed_input);
 
