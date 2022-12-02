@@ -10,12 +10,12 @@ pub struct RoundInput {
 }
 
 #[derive(PartialEq, Debug, Clone, Copy)]
-enum RPC {
+enum RPS {
     Rock,
     Paper,
     Scissors,
 }
-use RPC::*;
+use RPS::*;
 
 #[derive(Debug)]
 enum RoundResult {
@@ -27,15 +27,15 @@ use RoundResult::*;
 
 #[derive(Debug)]
 pub struct Round {
-    opponents_play: RPC,
-    my_play: RPC,
+    opponents_play: RPS,
+    my_play: RPS,
     result: RoundResult,
 }
 
 type StrategyGuide = Vec<RoundInput>;
 
-impl RPC {
-    fn from_abc(c: char) -> RPC {
+impl RPS {
+    fn from_abc(c: char) -> RPS {
         match c {
             'A' => Rock,
             'B' => Paper,
@@ -44,7 +44,7 @@ impl RPC {
         }
     }
 
-    fn from_xzy(c: char) -> RPC {
+    fn from_xzy(c: char) -> RPS {
         match c {
             'X' => Rock,
             'Y' => Paper,
@@ -65,7 +65,7 @@ impl RoundResult {
     }
 }
 
-fn play_round(my_play: &RPC, opponents_play: &RPC) -> RoundResult {
+fn play_round(my_play: &RPS, opponents_play: &RPS) -> RoundResult {
     match (my_play, opponents_play) {
         (Rock, Scissors) => Win,
         (Scissors, Paper) => Win,
@@ -75,7 +75,7 @@ fn play_round(my_play: &RPC, opponents_play: &RPC) -> RoundResult {
     }
 }
 
-fn reverse_engineer_round(opponents_play: &RPC, result: &RoundResult) -> RPC {
+fn reverse_engineer_round(opponents_play: &RPS, result: &RoundResult) -> RPS {
     match (opponents_play, result) {
         (x, Tie) => *x,
         (Rock, Lose) => Scissors,
@@ -88,8 +88,8 @@ fn reverse_engineer_round(opponents_play: &RPC, result: &RoundResult) -> RPC {
 }
 
 fn parse_part1(input: &RoundInput) -> Round {
-    let opponents_play = RPC::from_abc(input.first);
-    let my_play = RPC::from_xzy(input.second);
+    let opponents_play = RPS::from_abc(input.first);
+    let my_play = RPS::from_xzy(input.second);
     let result = play_round(&my_play, &opponents_play);
 
     Round {
@@ -100,7 +100,7 @@ fn parse_part1(input: &RoundInput) -> Round {
 }
 
 fn parse_part2(input: &RoundInput) -> Round {
-    let opponents_play = RPC::from_abc(input.first);
+    let opponents_play = RPS::from_abc(input.first);
     let result = RoundResult::from_xzy(input.second);
     let my_play = reverse_engineer_round(&opponents_play, &result);
 
