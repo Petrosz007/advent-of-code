@@ -1,14 +1,16 @@
 use days::Day;
 
-use crate::days::{day1, day2};
+use crate::days::{day1, day2, day3};
 
 mod days;
+mod utils;
 
 fn main() {
-    let day_to_run = 2;
+    let day_to_run = 3;
     let solve = match day_to_run {
         1 => Day::<1, day1::ParsedInput>::solve_days_input,
         2 => Day::<2, day2::ParsedInput>::solve_days_input,
+        3 => Day::<3, day3::ParsedInput>::solve_days_input,
 
         unimplemented_day => panic!("Day {} is not implemented yet!", unimplemented_day),
     };
