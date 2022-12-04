@@ -1,4 +1,4 @@
-use aoc2022rust::days::{self, day3, Day};
+use aoc2022rust::days::{self, day3, day4, Day};
 use aoc2022rust::days::{day1, day2};
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 
@@ -20,10 +20,17 @@ pub fn day3_benchmark(c: &mut Criterion) {
     });
 }
 
+pub fn day4_benchmark(c: &mut Criterion) {
+    c.bench_function("day4", |b| {
+        b.iter(|| Day::<4, day4::ParsedInput>::solve_days_input(&days::Days::new()))
+    });
+}
+
 criterion_group!(
     benches,
     // day1_benchmark,
     // day2_benchmark,
-    day3_benchmark
+    // day3_benchmark,
+    day4_benchmark,
 );
 criterion_main!(benches);
