@@ -1,3 +1,4 @@
+use super::SolutionType::Number;
 use recap::Recap;
 use serde::Deserialize;
 
@@ -61,8 +62,8 @@ impl Day<4, ParsedInput> for Days {
     }
 
     fn solve(&self, input: ParsedInput) -> Solution {
-        let part1 = Some(part1(&input));
-        let part2 = Some(part2(&input));
+        let part1 = Number(part1(&input));
+        let part2 = Number(part2(&input));
 
         Solution { part1, part2 }
     }
@@ -81,8 +82,8 @@ mod test {
         assert_eq!(
             solution,
             Solution {
-                part1: Some(657),
-                part2: Some(938)
+                part1: Number(657),
+                part2: Number(938)
             }
         );
     }
@@ -100,7 +101,7 @@ mod test {
         .trim();
 
         let solution = Day::<4, ParsedInput>::solve_text_input(&Days::new(), input);
-        assert_eq!(solution.part1, Some(2));
+        assert_eq!(solution.part1, Number(2));
     }
 
     #[test]
@@ -116,6 +117,6 @@ mod test {
         .trim();
 
         let solution = Day::<4, ParsedInput>::solve_text_input(&Days::new(), input);
-        assert_eq!(solution.part2, Some(4));
+        assert_eq!(solution.part2, Number(4));
     }
 }

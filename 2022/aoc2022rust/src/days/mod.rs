@@ -4,26 +4,37 @@ pub mod day1;
 pub mod day2;
 pub mod day3;
 pub mod day4;
+pub mod day5;
+
+#[derive(PartialEq, Eq, Debug)]
+pub enum SolutionType {
+    TODO,
+    Number(i64),
+    Readable(String),
+}
+
+pub use SolutionType::{Number, Readable, TODO};
+
+impl Display for SolutionType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            TODO => write!(f, "TODO"),
+            Number(x) => write!(f, "{x}"),
+            Readable(x) => write!(f, "{x}"),
+        }
+    }
+}
 
 #[derive(PartialEq, Eq, Debug)]
 pub struct Solution {
-    pub part1: Option<i64>,
-    pub part2: Option<i64>,
+    pub part1: SolutionType,
+    pub part2: SolutionType,
 }
 
 impl Display for Solution {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if let Some(part1) = self.part1 {
-            write!(f, "Part1: {part1}")?;
-        } else {
-            write!(f, "Part1: TODO")?;
-        };
-
-        if let Some(part2) = self.part2 {
-            write!(f, "\nPart2: {part2}")?;
-        } else {
-            write!(f, "\nPart2: TODO")?;
-        };
+        write!(f, "Part1: {}", self.part1)?;
+        write!(f, "\nPart2: {}", self.part2)?;
 
         Ok(())
     }

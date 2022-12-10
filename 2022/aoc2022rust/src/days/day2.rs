@@ -1,3 +1,4 @@
+use super::SolutionType::Number;
 use super::{Day, Days, Solution};
 use recap::Recap;
 use serde::Deserialize;
@@ -139,8 +140,8 @@ impl Day<2, StrategyGuide> for Days {
     }
 
     fn solve(&self, input: StrategyGuide) -> Solution {
-        let part1 = Some(calc_total_score(&input, parse_part1));
-        let part2 = Some(calc_total_score(&input, parse_part2));
+        let part1 = Number(calc_total_score(&input, parse_part1));
+        let part2 = Number(calc_total_score(&input, parse_part2));
 
         Solution { part1, part2 }
     }
@@ -157,8 +158,8 @@ mod test {
         assert_eq!(
             solution,
             Solution {
-                part1: Some(8933),
-                part2: Some(11998)
+                part1: Number(8933),
+                part2: Number(11998)
             }
         );
     }
@@ -173,7 +174,7 @@ mod test {
         .trim();
 
         let solution = Day::<2, ParsedInput>::solve_text_input(&Days::new(), input);
-        assert_eq!(solution.part1, Some(15));
+        assert_eq!(solution.part1, Number(15));
     }
 
     #[test]
@@ -186,6 +187,6 @@ mod test {
         .trim();
 
         let solution = Day::<2, ParsedInput>::solve_text_input(&Days::new(), input);
-        assert_eq!(solution.part2, Some(12));
+        assert_eq!(solution.part2, Number(12));
     }
 }

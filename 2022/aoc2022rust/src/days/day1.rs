@@ -1,3 +1,4 @@
+use super::SolutionType::Number;
 use super::{Day, Days, Solution};
 
 type Calories = Vec<i64>;
@@ -34,8 +35,8 @@ impl Day<1, Calories> for Days {
         calories.sort_unstable();
         calories.reverse();
 
-        let part1 = Some(part1(&calories));
-        let part2 = Some(part2(&calories));
+        let part1 = Number(part1(&calories));
+        let part2 = Number(part2(&calories));
 
         Solution { part1, part2 }
     }
@@ -52,8 +53,8 @@ mod test {
         assert_eq!(
             solution,
             Solution {
-                part1: Some(69_912),
-                part2: Some(208_180)
+                part1: Number(69_912),
+                part2: Number(208_180)
             }
         );
     }

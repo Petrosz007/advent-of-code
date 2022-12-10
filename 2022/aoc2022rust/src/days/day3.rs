@@ -1,3 +1,4 @@
+use super::SolutionType::Number;
 use crate::utils::intersect;
 
 use super::{Day, Days, Solution};
@@ -49,8 +50,8 @@ impl Day<3, ParsedInput> for Days {
     }
 
     fn solve(&self, input: ParsedInput) -> Solution {
-        let part1 = Some(part1(&input));
-        let part2 = Some(part2(&input));
+        let part1 = Number(part1(&input));
+        let part2 = Number(part2(&input));
 
         Solution { part1, part2 }
     }
@@ -67,8 +68,8 @@ mod test {
         assert_eq!(
             solution,
             Solution {
-                part1: Some(7831),
-                part2: Some(2683)
+                part1: Number(7831),
+                part2: Number(2683)
             }
         );
     }
@@ -86,7 +87,7 @@ CrZsJsPPZsGzwwsLwLmpwMDw
         .trim();
 
         let solution = Day::<3, ParsedInput>::solve_text_input(&Days::new(), input);
-        assert_eq!(solution.part1, Some(157));
+        assert_eq!(solution.part1, Number(157));
     }
 
     #[test]
@@ -102,6 +103,6 @@ CrZsJsPPZsGzwwsLwLmpwMDw
         .trim();
 
         let solution = Day::<3, ParsedInput>::solve_text_input(&Days::new(), input);
-        assert_eq!(solution.part2, Some(70));
+        assert_eq!(solution.part2, Number(70));
     }
 }
