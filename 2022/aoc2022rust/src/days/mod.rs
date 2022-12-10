@@ -8,17 +8,23 @@ pub mod day5;
 
 #[derive(PartialEq, Eq, Debug)]
 pub enum SolutionType {
-    TODO,
+    Todo,
     Number(i64),
     Readable(String),
 }
 
-pub use SolutionType::{Number, Readable, TODO};
+impl Default for SolutionType {
+    fn default() -> Self {
+        Self::Todo
+    }
+}
+
+pub use SolutionType::{Number, Readable, Todo};
 
 impl Display for SolutionType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            TODO => write!(f, "TODO"),
+            Todo => write!(f, "TODO"),
             Number(x) => write!(f, "{x}"),
             Readable(x) => write!(f, "{x}"),
         }
@@ -46,7 +52,7 @@ fn read_lines(file_name: &str) -> Vec<String> {
     read_to_string(path)
         .expect("Error opening file {file_name}!")
         .lines()
-        .map(|x| x.to_string())
+        .map(std::string::ToString::to_string)
         .collect::<Vec<String>>()
 }
 

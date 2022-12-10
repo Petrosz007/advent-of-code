@@ -36,7 +36,7 @@ where
         .collect()
 }
 
-pub fn transpose_lines(lines: &Vec<&str>) -> Vec<String> {
+pub fn transpose_lines(lines: &[&str]) -> Vec<String> {
     let chars_2d_matrix: Vec<Vec<char>> = lines.iter().map(|line| line.chars().collect()).collect();
 
     let transposed = transpose(&chars_2d_matrix);

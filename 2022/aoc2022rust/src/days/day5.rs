@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+#![allow(clippy::missing_docs_in_private_items, clippy::implicit_return)]
 
 use recap::Recap;
 use regex::Regex;
@@ -12,12 +12,12 @@ use super::{Day, Days, Solution};
 #[derive(Deserialize, Recap, PartialEq, Eq, Debug)]
 #[recap(regex = r#"move (?P<amount>\d+) from (?P<from>\d+) to (?P<to>\d+)"#)]
 struct Instruction {
-    amount: u8,
-    from: u8,
-    to: u8,
+    amount: usize,
+    from: usize,
+    to: usize,
 }
 
-type Crates = HashMap<u8, Vec<char>>;
+type Crates = Vec<Vec<char>>;
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct ParsedInput {
@@ -29,11 +29,13 @@ fn get_from_and_to<'a>(
     crates: &'a mut Crates,
     instruction: &'a Instruction,
 ) -> (&'a mut Vec<char>, &'a mut Vec<char>) {
+    // SAFETY:
     // We are sure that we won't borrow the same value twice
     // This unsafe block looks very hacky, but at least I've learnt something about unsafes today :D
     unsafe {
-        let a = crates.get_mut(&instruction.from).unwrap() as *mut _;
-        let b = crates.get_mut(&instruction.to).unwrap() as *mut _;
+        // let a = std::ptr::addr_of_mut!(crates[instruction.from - 1]);
+        let a = std::ptr::addr_of_mut!(crates[instruction.from - 1]);
+        let b = std::ptr::addr_of_mut!(crates[instruction.to - 1]);
         assert_ne!(a, b, "The two keys must not resolve to the same value");
 
         let from: &mut Vec<char> = &mut *a;
@@ -54,9 +56,8 @@ fn do_instruction_part1(crates: &mut Crates, instruction: &Instruction) {
 fn do_instruction_part2(crates: &mut Crates, instruction: &Instruction) {
     let (from, to) = get_from_and_to(crates, instruction);
 
-    let amount = instruction.amount as usize;
-    to.append(&mut from.as_slice()[from.len() - amount..].to_vec());
-    from.truncate(from.len() - amount);
+    to.append(&mut from.as_slice()[from.len() - instruction.amount..].to_vec());
+    from.truncate(from.len() - instruction.amount);
 }
 
 fn solve(input: &ParsedInput, do_instruction: impl Fn(&mut Crates, &Instruction)) -> String {
@@ -66,14 +67,7 @@ fn solve(input: &ParsedInput, do_instruction: impl Fn(&mut Crates, &Instruction)
         do_instruction(&mut crates, instruction);
     }
 
-    let mut tops = crates
-        .iter()
-        .map(|(i, xs)| (i, xs.last().unwrap()))
-        .collect::<Vec<_>>();
-
-    tops.sort_by_key(|(i, _)| *i);
-
-    tops.iter().map(|(_, x)| *x).collect()
+    crates.iter().map(|xs| xs.last().unwrap()).collect()
 }
 
 fn part1(input: &ParsedInput) -> String {
@@ -85,11 +79,12 @@ fn part2(input: &ParsedInput) -> String {
 }
 
 impl Day<5, ParsedInput> for Days {
+    #[inline]
     fn parse_lines(&self, lines: &[&str]) -> ParsedInput {
         let raw_input = lines.join("\n");
         let sections = raw_input.split("\n\n").collect::<Vec<&str>>();
 
-        let crate_lines = sections[0].lines().collect();
+        let crate_lines = sections[0].lines().collect::<Vec<&str>>();
         let instruction_lines = sections[1].lines();
 
         let instructions = instruction_lines
@@ -104,7 +99,8 @@ impl Day<5, ParsedInput> for Days {
         let crates = transposed_crate_lines
             .map(|xs| {
                 let ys: Vec<char> = xs.trim_start().chars().rev().collect();
-                (ys[0].to_digit(10).unwrap() as u8, ys[1..].to_vec())
+                // 1.. as we drop the digit of the stack, because our vector indexes will take care of that
+                ys[1..].to_vec()
             })
             .collect();
 
@@ -114,6 +110,7 @@ impl Day<5, ParsedInput> for Days {
         }
     }
 
+    #[inline]
     fn solve(&self, input: ParsedInput) -> super::Solution {
         let part1 = Readable(part1(&input));
         let part2 = Readable(part2(&input));
@@ -125,7 +122,7 @@ impl Day<5, ParsedInput> for Days {
 #[cfg(test)]
 mod tests {
     use crate::days::Solution;
-    use crate::days::SolutionType::{Readable, TODO};
+    use crate::days::SolutionType::Readable;
     use crate::days::{day5::Instruction, Day, Days};
 
     use super::ParsedInput;
@@ -150,13 +147,9 @@ move 1 from 1 to 2"#
         assert_eq!(
             parsed,
             ParsedInput {
-                crates: vec![
-                    (1u8, vec!['Z', 'N']),
-                    (2u8, vec!['M', 'C', 'D']),
-                    (3u8, vec!['P'])
-                ]
-                .into_iter()
-                .collect(),
+                crates: vec![vec!['Z', 'N'], vec!['M', 'C', 'D'], vec!['P']]
+                    .into_iter()
+                    .collect(),
                 instructions: vec![
                     Instruction {
                         amount: 1,
@@ -189,8 +182,8 @@ move 1 from 1 to 2"#
         assert_eq!(
             solution,
             Solution {
-                part1: Readable("SVFDLGLWV".to_string()),
-                part2: Readable("DCVTCVPCL".to_string())
+                part1: Readable("SVFDLGLWV".to_owned()),
+                part2: Readable("DCVTCVPCL".to_owned())
             }
         );
     }
@@ -198,12 +191,12 @@ move 1 from 1 to 2"#
     #[test]
     fn test_part1() {
         let solution = Day::<5, ParsedInput>::solve_text_input(&Days::new(), input1());
-        assert_eq!(solution.part1, Readable("CMZ".to_string()));
+        assert_eq!(solution.part1, Readable("CMZ".to_owned()));
     }
 
     #[test]
     fn test_part2() {
         let solution = Day::<5, ParsedInput>::solve_text_input(&Days::new(), input1());
-        assert_eq!(solution.part2, Readable("MCD".to_string()));
+        assert_eq!(solution.part2, Readable("MCD".to_owned()));
     }
 }

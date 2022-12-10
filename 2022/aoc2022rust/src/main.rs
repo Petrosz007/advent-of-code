@@ -5,6 +5,7 @@
     clippy::nursery,
     // clippy::cargo
 )]
+#![allow(clippy::missing_docs_in_private_items, clippy::implicit_return)]
 
 use days::Day;
 
