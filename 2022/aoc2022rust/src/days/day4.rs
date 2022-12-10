@@ -37,30 +37,25 @@ fn is_overlapping(line: &Line) -> bool {
         || (llo <= rhi && rhi <= lhi)
 }
 
-fn part1(lines: &Vec<Line>) -> i64 {
+fn part1(lines: &[Line]) -> i64 {
     lines
         .iter()
         .filter(|line| is_totally_overlapping(line))
-        .collect::<Vec<&Line>>()
-        .len() as i64
+        .count() as i64
 }
 
-fn part2(lines: &Vec<Line>) -> i64 {
-    lines
-        .iter()
-        .filter(|line| is_overlapping(line))
-        .collect::<Vec<&Line>>()
-        .len() as i64
+fn part2(lines: &[Line]) -> i64 {
+    lines.iter().filter(|line| is_overlapping(line)).count() as i64
 }
 
 pub type ParsedInput = Vec<Line>;
 impl Day<4, ParsedInput> for Days {
-    fn parse_lines(&self, lines: &Vec<String>) -> ParsedInput {
+    fn parse_lines(&self, lines: &[&str]) -> ParsedInput {
         lines
             .iter()
             .map(|x| {
                 x.parse()
-                    .expect(&format!("Line was in an incorrect format: '{x}'"))
+                    .unwrap_or_else(|_| panic!("Line was in an incorrect format: '{x}'"))
             })
             .collect()
     }

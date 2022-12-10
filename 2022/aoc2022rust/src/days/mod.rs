@@ -5,7 +5,7 @@ pub mod day2;
 pub mod day3;
 pub mod day4;
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Eq, Debug)]
 pub struct Solution {
     pub part1: Option<i64>,
     pub part2: Option<i64>,
@@ -44,31 +44,30 @@ pub trait Day<const DAY: u8, ParsedInput> {
         format!("day{}.txt", DAY)
     }
 
-    fn parse_lines(&self, lines: &Vec<String>) -> ParsedInput;
+    fn parse_lines(&self, lines: &[&str]) -> ParsedInput;
 
     fn solve(&self, input: ParsedInput) -> Solution;
 
     fn solve_days_input(&self) -> Solution {
         let lines = read_lines(&self.input_file_name());
+        let lines = lines.iter().map(|line| &line[..]).collect::<Vec<&str>>();
         let parsed_input = self.parse_lines(&lines);
-        let solution = self.solve(parsed_input);
 
-        solution
+        self.solve(parsed_input)
     }
 
     fn solve_text_input(&self, input: &str) -> Solution {
-        let lines = input.lines().map(|x| x.to_string()).collect();
+        let lines = input.lines().collect::<Vec<&str>>();
         let parsed_input = self.parse_lines(&lines);
-        let solution = self.solve(parsed_input);
 
-        solution
+        self.solve(parsed_input)
     }
 }
 
 pub struct Days {}
 
 impl Days {
-    pub fn new() -> Self {
-        Days {}
+    pub const fn new() -> Self {
+        Self {}
     }
 }

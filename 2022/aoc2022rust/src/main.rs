@@ -1,3 +1,11 @@
+#![warn(
+    clippy::all,
+    // clippy::restriction,
+    // clippy::pedantic,
+    clippy::nursery,
+    // clippy::cargo
+)]
+
 use days::Day;
 
 use crate::days::{day1, day2, day3, day4};

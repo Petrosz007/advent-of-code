@@ -1,6 +1,6 @@
 use aoc2022rust::days::{self, day3, day4, Day};
 use aoc2022rust::days::{day1, day2};
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, Criterion};
 
 pub fn day1_benchmark(c: &mut Criterion) {
     c.bench_function("day1", |b| {

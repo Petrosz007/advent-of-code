@@ -12,7 +12,7 @@ fn part2(calories: &Calories) -> i64 {
 
 pub type ParsedInput = Calories;
 impl Day<1, Calories> for Days {
-    fn parse_lines(&self, lines: &Vec<String>) -> Calories {
+    fn parse_lines(&self, lines: &[&str]) -> Calories {
         let mut calories = Vec::new();
         let mut acc = 0;
 
@@ -29,7 +29,7 @@ impl Day<1, Calories> for Days {
     }
 
     fn solve(&self, calories: Calories) -> Solution {
-        let mut calories = calories.clone();
+        let mut calories = calories;
 
         calories.sort_unstable();
         calories.reverse();
@@ -52,8 +52,8 @@ mod test {
         assert_eq!(
             solution,
             Solution {
-                part1: Some(69912),
-                part2: Some(208180)
+                part1: Some(69_912),
+                part2: Some(208_180)
             }
         );
     }

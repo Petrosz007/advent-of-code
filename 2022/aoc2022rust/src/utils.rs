@@ -8,24 +8,20 @@ pub trait ReducibleIterator: Iterator {
         F: FnMut(Self::Item, Self::Item) -> Self::Item,
     {
         let mut acc = self.next()?;
-        while let Some(x) = self.next() {
+        for x in self {
             acc = f(acc, x);
         }
         Some(acc)
     }
 }
 
-pub fn intersect<T>(inputs: &Vec<Vec<T>>) -> Vec<T>
+pub fn intersect<T>(inputs: &[Vec<T>]) -> Vec<T>
 where
     T: Hash + Eq + Clone,
 {
-    let result = inputs
+    inputs
         .iter()
-        .map(|coll| HashSet::<T>::from_iter(coll.iter().cloned()))
-        .reduce(|acc, set| acc.intersection(&set).cloned().collect::<HashSet<T>>());
-
-    match result {
-        Some(coll) => coll.iter().cloned().collect(),
-        None => Vec::new(),
-    }
+        .map(|coll| coll.iter().cloned().collect::<HashSet<T>>())
+        .reduce(|acc, set| acc.intersection(&set).cloned().collect::<HashSet<T>>())
+        .map_or_else(|| Vec::new(), |coll| coll.iter().cloned().collect())
 }

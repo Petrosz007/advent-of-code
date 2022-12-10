@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use crate::utils::intersect;
 
 use super::{Day, Days, Solution};
@@ -7,7 +5,7 @@ use super::{Day, Days, Solution};
 pub type Compartment = Vec<char>;
 pub type Rugsack = (Compartment, Compartment);
 
-fn calc_priority(c: char) -> i64 {
+const fn calc_priority(c: char) -> i64 {
     if c.is_ascii_lowercase() {
         (c as i64) - ('a' as i64) + 1
     } else {
@@ -23,16 +21,16 @@ fn parse_line(line: &str) -> Rugsack {
     (left, right)
 }
 
-fn part1(input: &Vec<String>) -> i64 {
+fn part1(input: &[String]) -> i64 {
     input
         .iter()
-        .map(|line| parse_line(&line))
-        .map(|(left, right)| intersect(&vec![left, right])[0])
+        .map(|line| parse_line(line))
+        .map(|(left, right)| intersect(&[left, right])[0])
         .map(calc_priority)
         .sum()
 }
 
-fn part2(input: &Vec<String>) -> i64 {
+fn part2(input: &[String]) -> i64 {
     input
         .chunks(3)
         .map(|three_rugsacks| {
@@ -46,8 +44,8 @@ fn part2(input: &Vec<String>) -> i64 {
 
 pub type ParsedInput = Vec<String>;
 impl Day<3, ParsedInput> for Days {
-    fn parse_lines(&self, lines: &ParsedInput) -> ParsedInput {
-        lines.clone()
+    fn parse_lines(&self, lines: &[&str]) -> ParsedInput {
+        lines.iter().map(std::string::ToString::to_string).collect()
     }
 
     fn solve(&self, input: ParsedInput) -> Solution {

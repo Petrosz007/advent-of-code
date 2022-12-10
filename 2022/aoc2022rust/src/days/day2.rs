@@ -27,7 +27,6 @@ use RoundResult::*;
 
 #[derive(Debug)]
 pub struct Round {
-    opponents_play: RPS,
     my_play: RPS,
     result: RoundResult,
 }
@@ -35,7 +34,7 @@ pub struct Round {
 type StrategyGuide = Vec<RoundInput>;
 
 impl RPS {
-    fn from_abc(c: char) -> RPS {
+    fn from_abc(c: char) -> Self {
         match c {
             'A' => Rock,
             'B' => Paper,
@@ -44,7 +43,7 @@ impl RPS {
         }
     }
 
-    fn from_xzy(c: char) -> RPS {
+    fn from_xzy(c: char) -> Self {
         match c {
             'X' => Rock,
             'Y' => Paper,
@@ -55,7 +54,7 @@ impl RPS {
 }
 
 impl RoundResult {
-    fn from_xzy(c: char) -> RoundResult {
+    fn from_xzy(c: char) -> Self {
         match c {
             'X' => Lose,
             'Y' => Tie,
@@ -75,7 +74,7 @@ fn play_round(my_play: &RPS, opponents_play: &RPS) -> RoundResult {
     }
 }
 
-fn reverse_engineer_round(opponents_play: &RPS, result: &RoundResult) -> RPS {
+const fn reverse_engineer_round(opponents_play: &RPS, result: &RoundResult) -> RPS {
     match (opponents_play, result) {
         (x, Tie) => *x,
         (Rock, Lose) => Scissors,
@@ -92,11 +91,7 @@ fn parse_part1(input: &RoundInput) -> Round {
     let my_play = RPS::from_xzy(input.second);
     let result = play_round(&my_play, &opponents_play);
 
-    Round {
-        opponents_play,
-        my_play,
-        result,
-    }
+    Round { my_play, result }
 }
 
 fn parse_part2(input: &RoundInput) -> Round {
@@ -104,14 +99,10 @@ fn parse_part2(input: &RoundInput) -> Round {
     let result = RoundResult::from_xzy(input.second);
     let my_play = reverse_engineer_round(&opponents_play, &result);
 
-    Round {
-        opponents_play,
-        my_play,
-        result,
-    }
+    Round { my_play, result }
 }
 
-fn calc_score(round: &Round) -> i64 {
+const fn calc_score(round: &Round) -> i64 {
     let shape_score = match round.my_play {
         Rock => 1,
         Paper => 2,
@@ -137,7 +128,7 @@ fn calc_total_score(input: &StrategyGuide, parse_fn: impl Fn(&RoundInput) -> Rou
 
 pub type ParsedInput = StrategyGuide;
 impl Day<2, StrategyGuide> for Days {
-    fn parse_lines(&self, lines: &Vec<String>) -> StrategyGuide {
+    fn parse_lines(&self, lines: &[&str]) -> StrategyGuide {
         lines
             .iter()
             .map(|line| {
