@@ -1,27 +1,32 @@
-use std::io::Empty;
-
 use regex::Regex;
 
 use super::SolutionType::Number;
 use super::{Day, Days, Solution};
 
+#[derive(Copy, Clone, Eq, PartialEq, PartialOrd, Ord, Debug)]
+pub struct NumberCell {
+    num: i64,
+    i: usize,
+    j: usize
+}
+
 #[derive(Clone, Eq, PartialEq, Debug)]
 pub enum Cell {
     Empty,
     Symbol(char),
-    Number(i64, usize, usize),
+    Number(NumberCell),
 }
 
 type Schematic = Vec<Vec<Cell>>;
 
-fn get_value_of_adjecent(schematic: &Schematic, i: usize, j: usize) -> Option<(i64, usize, usize)> {
+fn get_value_of_adjecent(schematic: &Schematic, i: usize, j: usize) -> Option<NumberCell> {
     schematic.get(i).and_then(|row| row.get(j).map(|cell| match cell {
-        Cell::Number(n, i, j) => Some((*n, *i, *j)),
+        Cell::Number(number_cell) => Some(*number_cell),
         _ => None,
     })).flatten()
 }
 
-fn sum_of_adjecents(schematic: &Schematic, i: usize, j: usize) -> i64 {
+fn get_adjecent_nums(schematic: &Schematic, i: usize, j: usize) -> Vec<NumberCell> {
     let mut adjecent_nums = vec![
         (i - 1, j - 1), (i - 1, j), (i - 1, j + 1),
         (i    , j - 1),             (i    , j + 1),
@@ -31,21 +36,18 @@ fn sum_of_adjecents(schematic: &Schematic, i: usize, j: usize) -> i64 {
     adjecent_nums.sort();
     adjecent_nums.dedup();
 
-    adjecent_nums.iter().map(|(n, _, _)| n).sum()
+    adjecent_nums
+}
+
+fn sum_of_adjecents(schematic: &Schematic, i: usize, j: usize) -> i64 {
+    get_adjecent_nums(schematic, i, j).iter().map(|NumberCell { num, .. }| num).sum()
 }
 
 fn product_of_two_adjecents(schematic: &Schematic, i: usize, j: usize) -> i64 {
-    let mut adjecent_nums = vec![
-        (i - 1, j - 1), (i - 1, j), (i - 1, j + 1),
-        (i    , j - 1),             (i    , j + 1),
-        (i + 1, j - 1), (i + 1, j), (i + 1, j + 1),
-    ].into_iter().filter_map(|(i, j)| get_value_of_adjecent(schematic, i, j)).collect::<Vec<_>>();
-
-    adjecent_nums.sort();
-    adjecent_nums.dedup();
+    let adjecent_nums = get_adjecent_nums(schematic, i, j);
 
     if adjecent_nums.len() == 2 {
-        adjecent_nums[0].0 * adjecent_nums[1].0
+        adjecent_nums[0].num * adjecent_nums[1].num
     } else { 
         0
     }
@@ -102,7 +104,7 @@ impl Day<3, Schematic> for Days {
                     num_regex.find_at(line, j).map_or_else(|| panic!("Couldn't match number regex where we saw a number"), |m| {
                         let num = m.as_str().parse::<i64>().expect("A number should be parsed");
                         for new_j in m.start()..m.end() {
-                            schematic[i][new_j] = Cell::Number(num, i, j);
+                            schematic[i][new_j] = Cell::Number(NumberCell { num, i, j });
                         }
                         skip = m.end() - m.start() - 1;
                     })
