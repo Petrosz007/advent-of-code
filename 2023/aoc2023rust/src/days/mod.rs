@@ -1,6 +1,7 @@
 use std::{fmt::Display, fs::read_to_string};
 
 pub mod day3;
+pub mod day6;
 
 #[derive(PartialEq, Eq, Debug)]
 pub enum SolutionType {
@@ -82,5 +83,18 @@ pub struct Days {}
 impl Days {
     pub const fn new() -> Self {
         Self {}
+    }
+
+    pub fn solve(day: i32, input_path: &str) -> Solution {
+        let input = read_to_string(input_path).expect("Error opening file {file_name}!");
+
+        let solve = match day {
+            3 => Day::<3, day3::ParsedInput>::solve_text_input,
+            6 => Day::<6, day6::ParsedInput>::solve_text_input,
+
+            unimplemented_day => panic!("Day {} is not implemented yet!", unimplemented_day),
+        };
+
+        solve(&Self::new(), &input)
     }
 }

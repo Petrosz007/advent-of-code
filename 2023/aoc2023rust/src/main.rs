@@ -7,23 +7,30 @@
 )]
 #![allow(clippy::missing_docs_in_private_items, clippy::implicit_return)]
 
-use days::Day;
-
-use crate::days::{day3};
+use clap::Parser;
+use days::Days;
 
 mod days;
 mod utils;
 
+/// Advent of Code code runner
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    /// Name of the person to greet
+    #[arg(short, long)]
+    day: i32,
+
+    /// Number of times to greet
+    #[arg(short, long)]
+    file: String,
+}
+
 fn main() {
-    let day_to_run = 3;
-    let solve = match day_to_run {
-        3 => Day::<3, day3::ParsedInput>::solve_days_input,
+    let args = Args::parse();
 
-        unimplemented_day => panic!("Day {} is not implemented yet!", unimplemented_day),
-    };
+    let solution = Days::solve(args.day, &args.file);
 
-    println!("Day {}:", day_to_run);
-    let solution = solve(&days::Days::new());
-
+    println!("Day {}:", args.day);
     println!("{solution}");
 }
