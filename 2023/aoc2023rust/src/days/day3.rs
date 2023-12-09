@@ -1,7 +1,7 @@
 use regex::Regex;
 
 use super::SolutionType::Number;
-use super::{Day, Days, Solution};
+use super::{Day, Solution};
 
 #[derive(Copy, Clone, Eq, PartialEq, PartialOrd, Ord, Debug)]
 pub struct NumberCell {
@@ -73,7 +73,7 @@ fn part1(schematic: &Schematic) -> i64 {
     let mut sum = 0;
     for (row, i) in schematic.iter().zip(0..) {
         for (cell, j) in row.iter().zip(0..) {
-            if let Cell::Symbol(s) = cell {
+            if let Cell::Symbol(_) = cell {
                 sum += sum_of_adjecents(schematic, i, j)
             }
         }
@@ -86,7 +86,7 @@ fn part2(schematic: &Schematic) -> i64 {
     let mut sum = 0;
     for (row, i) in schematic.iter().zip(0..) {
         for (cell, j) in row.iter().zip(0..) {
-            if let Cell::Symbol(s) = cell {
+            if let Cell::Symbol(_) = cell {
                 sum += product_of_two_adjecents(schematic, i, j)
             }
         }
@@ -95,9 +95,17 @@ fn part2(schematic: &Schematic) -> i64 {
     sum
 }
 
-pub type ParsedInput = Schematic;
-impl Day<3, Schematic> for Days {
-    fn parse_lines(&self, lines: &[&str]) -> Schematic {
+pub struct Day3;
+impl Day for Day3 {
+    type ParsedInput = Schematic;
+
+    fn day_file() -> &'static str {
+        "day3.txt"
+    }
+
+    fn parse_input(input: &str) -> Schematic {
+        let lines = input.lines().collect::<Vec<&str>>();
+
         let mut tmp_line = Vec::new();
         tmp_line.resize(lines[0].len(), Cell::Empty);
 
@@ -138,7 +146,7 @@ impl Day<3, Schematic> for Days {
         schematic
     }
 
-    fn solve(&self, schematic: Schematic) -> Solution {
+    fn solve(schematic: Schematic) -> Solution {
         let part1 = Number(part1(&schematic));
         let part2 = Number(part2(&schematic));
 
@@ -165,7 +173,7 @@ mod test {
 .664.598..
 "#
         .trim();
-        let solution = Day::<3, ParsedInput>::solve_text_input(&Days::new(), input);
+        let solution = Day3::solve_text_input(input);
 
         assert_eq!(
             solution,
@@ -178,7 +186,7 @@ mod test {
 
     #[test]
     fn test_actual_solution() {
-        let solution = Day::<3, ParsedInput>::solve_days_input(&Days::new());
+        let solution = Day3::solve_days_input();
 
         assert_eq!(
             solution,

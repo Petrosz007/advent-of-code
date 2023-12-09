@@ -7,8 +7,8 @@
 )]
 #![allow(clippy::missing_docs_in_private_items, clippy::implicit_return)]
 
+use aoc2023rust::days::solve;
 use clap::Parser;
-use days::Days;
 
 mod days;
 mod utils;
@@ -29,7 +29,7 @@ struct Args {
 fn main() {
     let args = Args::parse();
 
-    let solution = Days::solve(args.day, &args.file);
+    let solution = solve(args.day, &args.file);
 
     println!("Day {}:", args.day);
     println!("{solution}");

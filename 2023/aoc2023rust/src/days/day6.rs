@@ -1,5 +1,5 @@
 use super::SolutionType::Number;
-use super::{Day, Days, Solution};
+use super::{Day, Solution};
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug)]
 pub struct RaceRecord {
@@ -26,9 +26,17 @@ fn part2(race_record: &RaceRecord) -> i64 {
     num_ways_to_win(race_record)
 }
 
-pub type ParsedInput = (Vec<RaceRecord>, RaceRecord);
-impl Day<6, ParsedInput> for Days {
-    fn parse_lines(&self, lines: &[&str]) -> ParsedInput {
+pub struct Day6;
+impl Day for Day6 {
+    type ParsedInput = (Vec<RaceRecord>, RaceRecord);
+
+    fn day_file() -> &'static str {
+        "day6.txt"
+    }
+
+    fn parse_input(input: &str) -> Self::ParsedInput {
+        let lines = input.lines().collect::<Vec<&str>>();
+
         fn parse(line: &str) -> Vec<i64> {
             line.split_ascii_whitespace()
                 .skip(1)
@@ -60,7 +68,7 @@ impl Day<6, ParsedInput> for Days {
         (part1, part2)
     }
 
-    fn solve(&self, parsed_input: ParsedInput) -> Solution {
+    fn solve(parsed_input: Self::ParsedInput) -> Solution {
         let part1 = Number(part1(&parsed_input.0));
         let part2 = Number(part2(&parsed_input.1));
 
@@ -90,8 +98,7 @@ Distance:  9  40  200
             },
         );
 
-        let result =
-            Day::<6, ParsedInput>::parse_lines(&Days::new(), &input.lines().collect::<Vec<_>>());
+        let result = Day6::parse_input(input);
 
         assert_eq!(result, expected);
     }
@@ -104,7 +111,7 @@ Distance:  9  40  200
         "#
         .trim();
 
-        let result = Day::<6, ParsedInput>::solve_text_input(&Days::new(), input);
+        let result = Day6::solve_text_input(input);
 
         assert_eq!(
             result,
@@ -117,13 +124,13 @@ Distance:  9  40  200
 
     #[test]
     fn test_solution() {
-        let result = Day::<6, ParsedInput>::solve_days_input(&Days::new());
+        let result = Day6::solve_file_input("day6.txt");
 
         assert_eq!(
             result,
             Solution {
-                part1: Number(293046),
-                part2: Number(35150181)
+                part1: Number(293_046),
+                part2: Number(35_150_181)
             }
         );
     }

@@ -1,5 +1,6 @@
 use std::{fmt::Display, fs::read_to_string};
 
+pub mod day1;
 pub mod day3;
 pub mod day6;
 
@@ -47,54 +48,49 @@ fn read_lines(file_name: &str) -> Vec<String> {
     let path = format!("inputs/{file_name}");
 
     read_to_string(path)
-        .expect("Error opening file {file_name}!")
+        .unwrap_or_else(|_| panic!("Error opening file {file_name}!"))
         .lines()
         .map(std::string::ToString::to_string)
         .collect::<Vec<String>>()
 }
 
-pub trait Day<const DAY: u8, ParsedInput> {
-    fn input_file_name(&self) -> String {
-        format!("day{}.txt", DAY)
+pub trait Day {
+    type ParsedInput;
+
+    fn day_file() -> &'static str;
+
+    fn parse_input(input: &str) -> Self::ParsedInput;
+
+    fn solve(input: Self::ParsedInput) -> Solution;
+
+    fn solve_file_input(file_name: &str) -> Solution {
+        let path = format!("inputs/{file_name}");
+        let file_contents = read_to_string(path).expect("File to exist");
+
+        Self::solve_text_input(&file_contents)
     }
 
-    fn parse_lines(&self, lines: &[&str]) -> ParsedInput;
+    fn solve_text_input(input: &str) -> Solution {
+        let parsed_input = Self::parse_input(input);
 
-    fn solve(&self, input: ParsedInput) -> Solution;
-
-    fn solve_days_input(&self) -> Solution {
-        let lines = read_lines(&self.input_file_name());
-        let lines = lines.iter().map(|line| &line[..]).collect::<Vec<&str>>();
-        let parsed_input = self.parse_lines(&lines);
-
-        self.solve(parsed_input)
+        Self::solve(parsed_input)
     }
 
-    fn solve_text_input(&self, input: &str) -> Solution {
-        let lines = input.lines().collect::<Vec<&str>>();
-        let parsed_input = self.parse_lines(&lines);
-
-        self.solve(parsed_input)
+    fn solve_days_input() -> Solution {
+        Self::solve_file_input(Self::day_file())
     }
 }
 
-pub struct Days {}
+pub fn solve(day: i32, input_path: &str) -> Solution {
+    let input = read_to_string(input_path).expect("Error opening file {file_name}!");
 
-impl Days {
-    pub const fn new() -> Self {
-        Self {}
-    }
+    let solve = match day {
+        1 => day1::Day1::solve_text_input,
+        3 => day3::Day3::solve_text_input,
+        6 => day6::Day6::solve_text_input,
 
-    pub fn solve(day: i32, input_path: &str) -> Solution {
-        let input = read_to_string(input_path).expect("Error opening file {file_name}!");
+        unimplemented_day => panic!("Day {} is not implemented yet!", unimplemented_day),
+    };
 
-        let solve = match day {
-            3 => Day::<3, day3::ParsedInput>::solve_text_input,
-            6 => Day::<6, day6::ParsedInput>::solve_text_input,
-
-            unimplemented_day => panic!("Day {} is not implemented yet!", unimplemented_day),
-        };
-
-        solve(&Self::new(), &input)
-    }
+    solve(&input)
 }
