@@ -1,6 +1,7 @@
 use std::{fmt::Display, fs::read_to_string};
 
 pub mod day1;
+pub mod day2;
 pub mod day3;
 pub mod day6;
 
@@ -86,6 +87,7 @@ pub fn solve(day: i32, input_path: &str) -> Solution {
 
     let solve = match day {
         1 => day1::Day1::solve_text_input,
+        2 => day2::Day2::solve_text_input,
         3 => day3::Day3::solve_text_input,
         6 => day6::Day6::solve_text_input,
 
