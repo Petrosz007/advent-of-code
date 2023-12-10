@@ -1,5 +1,9 @@
-use std::collections::HashSet;
 use std::hash::Hash;
+use std::str::FromStr;
+use std::{borrow::Cow, collections::HashSet};
+
+use once_cell::sync::Lazy;
+use regex::{Regex, Replacer, Split};
 
 pub trait ReducibleIterator: Iterator {
     fn reduce<F>(mut self, mut f: F) -> Option<Self::Item>
@@ -42,4 +46,36 @@ pub fn transpose_lines(lines: &[&str]) -> Vec<String> {
     let transposed = transpose(&chars_2d_matrix);
 
     transposed.iter().map(|xs| xs.iter().collect()).collect()
+}
+
+pub trait StrExtensions {
+    fn regex_replace_all<'t, R: Replacer>(&'t self, re: &Regex, rep: R) -> Cow<'t, str>;
+    fn regex_split<'r, 't>(&'t self, re: &'r Regex) -> Split<'r, 't>;
+
+    fn whitespace_split_to<G: FromStr>(&self) -> Box<dyn Iterator<Item = G> + '_>
+    where
+        <G as std::str::FromStr>::Err: std::fmt::Debug;
+}
+
+static WHITESPACE_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r#"\s+"#).unwrap());
+
+impl StrExtensions for str {
+    fn regex_replace_all<'t, R: Replacer>(&'t self, re: &Regex, rep: R) -> Cow<'t, str> {
+        re.replace_all(self, rep)
+    }
+
+    fn regex_split<'r, 't>(&'t self, re: &'r Regex) -> Split<'r, 't> {
+        re.split(self)
+    }
+
+    fn whitespace_split_to<G: FromStr>(&self) -> Box<dyn Iterator<Item = G> + '_>
+    where
+        <G as std::str::FromStr>::Err: std::fmt::Debug,
+    {
+        Box::new(
+            self.trim()
+                .regex_split(&WHITESPACE_REGEX)
+                .map(|s| s.parse::<G>().unwrap()),
+        )
+    }
 }
