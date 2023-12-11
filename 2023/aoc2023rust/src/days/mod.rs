@@ -1,6 +1,7 @@
 use std::{fmt::Display, fs::read_to_string};
 
 pub mod day1;
+pub mod day10;
 pub mod day2;
 pub mod day3;
 pub mod day4;
@@ -92,6 +93,7 @@ pub fn solve(day: i32, input_path: &str) -> Solution {
         3 => day3::Day3::solve_text_input,
         4 => day4::Day4::solve_text_input,
         6 => day6::Day6::solve_text_input,
+        10 => day10::Day10::solve_text_input,
 
         unimplemented_day => panic!("Day {} is not implemented yet!", unimplemented_day),
     };
