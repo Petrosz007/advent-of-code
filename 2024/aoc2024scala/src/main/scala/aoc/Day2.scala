@@ -1,7 +1,5 @@
 package aoc
 
-import scala.language.experimental.namedTuples
-
 class Day2 extends Day:
   val file = "day2.txt"
   type ParsedInput = List[List[Long]]

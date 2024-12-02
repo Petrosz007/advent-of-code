@@ -1,7 +1,6 @@
 package aoc
 
 import scala.io.Source
-import scala.language.experimental.namedTuples
 
 enum Solution:
   case Num(x: Long)

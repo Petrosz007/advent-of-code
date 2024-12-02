@@ -2,8 +2,6 @@ package aoc
 
 import aoc.Solution.*
 
-import scala.language.experimental.namedTuples
-
 class Day1 extends Day:
   val file: String = "day1.txt"
   type ParsedInput = (left: List[Long], right: List[Long])

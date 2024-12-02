@@ -6,7 +6,6 @@ import org.scalatest._
 import funspec._
 import matchers._
 import scala.io.Source
-import scala.language.experimental.namedTuples
 
 class Day2Test extends AnyFunSpec with should.Matchers:
   val day = Day2()

@@ -1,5 +1,6 @@
 scalacOptions ++= Seq(
-  "-experimental"
+  "-experimental",
+  "-language:experimental.namedTuples"
 )
 
 ThisBuild / scalaVersion := "3.5.2"
