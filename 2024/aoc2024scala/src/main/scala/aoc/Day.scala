@@ -10,6 +10,7 @@ enum Solution:
 
 object Solution:
   given fromLongToSolution: Conversion[Long, Solution]     = (x: Long) => Solution.Num(x)
+  given fromIntToSolution: Conversion[Int, Solution]       = (x: Int) => Solution.Num(x.toLong)
   given fromStringToSolution: Conversion[String, Solution] = (s: String) => Solution.Printable(s)
   given fromUnitToSolution: Conversion[Unit, Solution]     = (_: Unit) => Solution.Unsolved
 
@@ -19,13 +20,13 @@ trait Day:
   val file: String
   type ParsedInput
 
-  def parseInput(input: Iterator[String]): ParsedInput
+  def parseInput(input: List[String]): ParsedInput
   def part1(input: ParsedInput): Solution
   def part2(input: ParsedInput): Solution
   def solve(input: ParsedInput): DaySolution
 
   def parsedInput(): ParsedInput =
-    val input = Source.fromResource(file).getLines()
+    val input = Source.fromResource(file).getLines().toList
     parseInput(input)
 
   def run(): Unit =

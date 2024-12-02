@@ -21,7 +21,7 @@ trait AOCMatchers:
   class DaySolvePart1ExampleMatcher(input: String, expected: Solution) extends Matcher[Day] {
 
     def apply(day: Day) = {
-      val result = day.part1(day.parseInput(input.trim().linesIterator))
+      val result = day.part1(day.parseInput(input.trim().linesIterator.toList))
       MatchResult(
         result == expected,
         s"""${day
@@ -35,7 +35,7 @@ trait AOCMatchers:
   class DaySolvePart2ExampleMatcher(input: String, expected: Solution) extends Matcher[Day] {
 
     def apply(day: Day) = {
-      val result = day.part2(day.parseInput(input.trim().linesIterator))
+      val result = day.part2(day.parseInput(input.trim().linesIterator.toList))
       MatchResult(
         result == expected,
         s"""${day

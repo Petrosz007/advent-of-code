@@ -2,14 +2,13 @@ package aoc
 
 import aoc.Solution.*
 
-import scala.io.Source
 import scala.language.experimental.namedTuples
 
 class Day1 extends Day:
   val file: String = "day1.txt"
   type ParsedInput = (left: List[Long], right: List[Long])
 
-  def parseInput(input: Iterator[String]): ParsedInput =
+  def parseInput(input: List[String]): ParsedInput =
     input
       .foldLeft((List.empty, List.empty)) { case ((left, right), line) =>
         val Array(lhs, rhs) = line.split(raw"   ")
