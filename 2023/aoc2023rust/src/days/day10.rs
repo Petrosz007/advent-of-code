@@ -94,6 +94,7 @@ fn print_map(map: &Map) {
     for line in map.iter() {
         for (_, pipe) in line.iter() {
             print!("{pipe}");
+            // print!("{}", if *pipe == Ground { " " } else { "█" });
         }
         println!();
     }
@@ -145,6 +146,50 @@ fn part1(parsed_map: &ParsedMap) -> i64 {
     loop_length / 2
 }
 
+fn part2(parsed_map: &ParsedMap) -> i64 {
+    let ParsedMap {
+        map,
+        start,
+        rows,
+        cols,
+        ..
+    } = parsed_map;
+
+    let start_directions = vec![North, South, East, West]
+        .into_iter()
+        .filter(|dir| {
+            let (i, j) = move_to(*start, dir);
+
+            map[i][j].1.next(dir).is_ok()
+        })
+        .collect::<Vec<_>>();
+
+    let start_dir = start_directions[0];
+
+    let mut visited = map
+        .iter()
+        .map(|row| row.iter().map(|((i, j), _)| ((*i, *j), Ground)).collect())
+        .collect::<Map>();
+    visited[start.0][start.1] = map[start.0][start.1];
+
+    let mut loop_length = 1;
+    let mut pos = move_to(*start, &start_dir);
+    let mut dir = start_dir;
+    while map[pos.0][pos.1].1 != Start {
+        visited[pos.0][pos.1] = map[pos.0][pos.1];
+        let to_dir = map[pos.0][pos.1].1.next(&dir);
+
+        let to_dir = to_dir.expect("The map to have a correct traversable loop");
+        pos = move_to(pos, &to_dir);
+        loop_length += 1;
+        dir = to_dir;
+    }
+
+    print_map(&visited);
+
+    loop_length / 2
+}
+
 pub struct Day10;
 impl Day for Day10 {
     type ParsedInput = ParsedMap;
@@ -189,7 +234,7 @@ impl Day for Day10 {
 
         Solution {
             part1: Number(part1(&input)),
-            part2: Todo,
+            part2: Number(part2(&input)),
         }
     }
 }
