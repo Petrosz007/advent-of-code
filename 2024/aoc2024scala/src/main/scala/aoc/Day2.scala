@@ -28,7 +28,8 @@ class Day2 extends Day:
     evaluations.forall(_ == SafeIncrease) || evaluations.forall(_ == SafeDecrease)
 
   def isSafeReport2(report: List[Long]): Boolean =
-    (report +: (0 to report.length).map(i => report.patch(i, Seq.empty, 1))).exists(isSafeReport)
+    (report +: report.indices.map(i => report.patch(i, Seq.empty, 1)))
+      .exists(isSafeReport)
 
   def part1(input: ParsedInput): Solution =
     input.count(isSafeReport)
