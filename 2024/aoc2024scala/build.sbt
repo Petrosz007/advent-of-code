@@ -6,5 +6,6 @@ scalacOptions ++= Seq(
 ThisBuild / scalaVersion := "3.5.2"
 
 libraryDependencies ++= Seq(
-  "org.scalatest" %% "scalatest" % "3.2.19" % Test
+  "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.4",
+  "org.scalatest"          %% "scalatest"                  % "3.2.19" % Test
 )
